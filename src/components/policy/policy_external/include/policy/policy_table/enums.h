@@ -192,7 +192,6 @@ const char* EnumToJsonString(HybridAppPreference val);
 bool EnumFromJsonString(const std::string& literal,
                         HybridAppPreference* result);
 
-
 bool IsValidEnum(FunctionID val);
 const char* EnumToJsonString(FunctionID val);
 bool EnumFromJsonString(const std::string& literal, FunctionID* result);
