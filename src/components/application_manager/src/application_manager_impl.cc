@@ -3913,6 +3913,7 @@ void ApplicationManagerImpl::SendDriverDistractionState(
     auto& msg_params = (*notification)[strings::msg_params];
     auto& params = (*notification)[strings::params];
 
+    params[strings::connection_key] = application->app_id();
     params[strings::message_type] =
         static_cast<int32_t>(application_manager::MessageType::kNotification);
     params[strings::function_id] =
@@ -3926,9 +3927,32 @@ void ApplicationManagerImpl::SendDriverDistractionState(
             driver_distraction_state()) {
       msg_params[mobile_notification::lock_screen_dismissal_enabled] =
           *lock_screen_dismissal;
+
+      const auto mobile_language =
+          MessageHelper::MobileLanguageToString(application->ui_language());
+
+      auto lock_screen_dismissal_warning_message =
+          policy_handler_->LockScreenDissmisalWarningMessage(mobile_language);
+
+      if (lock_screen_dismissal_warning_message.is_initialized()) {
+        auto ui_language = hmi_capabilities_->active_ui_language();
+        const auto active_ui_language =
+            MessageHelper::CommonLanguageToString(ui_language);
+        lock_screen_dismissal_warning_message =
+            policy_handler_->LockScreenDissmisalWarningMessage(
+                active_ui_language);
+
+        if (!lock_screen_dismissal_warning_message->empty()) {
+          msg_params[mobile_notification::lock_screen_dismissal_warning] =
+              *lock_screen_dismissal_warning_message;
+        }
+      } else {
+        LOG4CXX_WARN(
+            logger_,
+            "The language type '" << mobile_language << "' isn't supported");
+      }
     }
 
-    params[strings::connection_key] = application->app_id();
     return notification;
   };
 

@@ -725,6 +725,14 @@ class MessageHelper {
       hmi_apis::Common_Language::eType language);
 
   /**
+   * @brief Converts mobile language enum to string representation
+   * @param language Mobile language enum
+   * @return string Mobile language string representation
+   */
+  static std::string MobileLanguageToString(
+      const mobile_api::Language::eType language);
+
+  /**
    * @brief Converts string to mobile language enum value
    * @param language language as string
    * @return Mobile language enum value

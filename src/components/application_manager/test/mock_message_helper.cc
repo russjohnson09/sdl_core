@@ -366,6 +366,12 @@ std::string MessageHelper::CommonLanguageToString(
   return MockMessageHelper::message_helper_mock()->CommonLanguageToString(lang);
 }
 
+std::string MessageHelper::MobileLanguageToString(
+    const mobile_api::Language::eType language) {
+  return MockMessageHelper::message_helper_mock()->MobileLanguageToString(
+      language);
+}
+
 smart_objects::SmartObjectSPtr MessageHelper::GetBCActivateAppRequestToHMI(
     ApplicationConstSharedPtr app,
     const protocol_handler::SessionObserver& session_observer,
