@@ -34,7 +34,10 @@
                 "NORMAL": 4,
                 "NONE": 0
             },
-            "lock_screen_dismissal_enabled": true
+            "lock_screen_dismissal_enabled": true,
+            "lock_screen_dismissal_warning": {
+                "en-us": "Swipe up to dismiss, acknowledging that you are not the driver"
+            }
         },
         "functional_groupings": {
             "Base-4": {
