@@ -404,13 +404,21 @@ void PolicyManagerImpl::CheckPermissionsChanges(
 
 void PolicyManagerImpl::CheckPermissionsChangesAfterUpdate(
     const policy_table::Table& update, const policy_table::Table& snapshot) {
+  const bool is_lock_screen_dismissal_state_changed =
+      IsLockScreenDismissalStateChanged(update, snapshot);
+  if (is_lock_screen_dismissal_state_changed) {
+    listener()->OnLockScreenDismissalStateChanged();
+  }
+}
+
+bool PolicyManagerImpl::IsLockScreenDismissalStateChanged(
+    const rpc::policy_table_interface_base::Table& update,
+    const rpc::policy_table_interface_base::Table& snapshot) {
   const auto new_lock_screen_dismissal_enabled =
       update.policy_table.module_config.lock_screen_dismissal_enabled;
   const auto old_lock_screen_dismissal_enabled =
       snapshot.policy_table.module_config.lock_screen_dismissal_enabled;
-  if (new_lock_screen_dismissal_enabled != old_lock_screen_dismissal_enabled) {
-    listener()->OnLockScreenDismissalStateChanged();
-  }
+  return new_lock_screen_dismissal_enabled != old_lock_screen_dismissal_enabled;
 }
 
 void PolicyManagerImpl::PrepareNotificationData(
@@ -1083,6 +1091,12 @@ void PolicyManagerImpl::KmsChanged(int kilometers) {
 const boost::optional<bool> PolicyManagerImpl::LockScreenDismissalEnabledState()
     const {
   return cache_->LockScreenDismissalEnabledState();
+}
+
+const boost::optional<std::string>
+PolicyManagerImpl::LockScreenDissmisalWarningMessage(
+    const std::string& language_code) const {
+  return cache_->LockScreenDissmisalWarningMessage(language_code);
 }
 
 void PolicyManagerImpl::IncrementIgnitionCycles() {

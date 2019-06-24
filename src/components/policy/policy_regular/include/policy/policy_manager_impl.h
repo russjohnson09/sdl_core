@@ -164,6 +164,9 @@ class PolicyManagerImpl : public PolicyManager {
 
   const boost::optional<bool> LockScreenDismissalEnabledState() const OVERRIDE;
 
+  const boost::optional<std::string> LockScreenDissmisalWarningMessage(
+      const std::string& language_code) const OVERRIDE;
+
   /**
    * @brief Increments counter of ignition cycles
    */
@@ -831,6 +834,15 @@ class PolicyManagerImpl : public PolicyManager {
    */
   void CheckPermissionsChangesAfterUpdate(const policy_table::Table& update,
                                           const policy_table::Table& snapshot);
+
+  /**
+   * @brief Compares current value of local screen dismissal state to the
+   * updated one
+   * @param update Shared pointer to policy table update
+   * @param snapshot Shared pointer to old copy of policy table
+   */
+  bool IsLockScreenDismissalStateChanged(const policy_table::Table& update,
+                                         const policy_table::Table& snapshot);
 
   /**
    * @brief Fill structure to be sent with OnPermissionsChanged notification

@@ -148,6 +148,9 @@ class CacheManager : public CacheManagerInterface {
 
   const boost::optional<bool> LockScreenDismissalEnabledState() const OVERRIDE;
 
+  const boost::optional<std::string> LockScreenDissmisalWarningMessage(
+      const std::string& language_code) const OVERRIDE;
+
   /**
    * @brief Get a list of enabled cloud applications
    * @param enabled_apps List filled with the policy app id of each enabled

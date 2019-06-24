@@ -1624,6 +1624,13 @@ const boost::optional<bool> PolicyHandler::LockScreenDismissalEnabledState()
   return policy_manager_->LockScreenDismissalEnabledState();
 }
 
+const boost::optional<std::string>
+PolicyHandler::LockScreenDissmisalWarningMessage(
+    const std::string& language_code) const {
+  POLICY_LIB_CHECK(boost::optional<std::string>());
+  return policy_manager_->LockScreenDissmisalWarningMessage(language_code);
+}
+
 void PolicyHandler::PTUpdatedAt(Counters counter, int value) {
   POLICY_LIB_CHECK_VOID();
   policy_manager_->PTUpdatedAt(counter, value);

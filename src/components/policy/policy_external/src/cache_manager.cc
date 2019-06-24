@@ -1573,6 +1573,25 @@ const boost::optional<bool> CacheManager::LockScreenDismissalEnabledState()
   return empty;
 }
 
+const boost::optional<std::string>
+CacheManager::LockScreenDissmisalWarningMessage(
+    const std::string& language_code) const {
+  boost::optional<std::string> empty;
+  CACHE_MANAGER_CHECK(empty);
+  policy_table::ModuleConfig& module_config = pt_->policy_table.module_config;
+  if (module_config.lock_screen_dismissal_warning.is_initialized()) {
+    const auto lock_screen_dismissal_warnings =
+        (*module_config.lock_screen_dismissal_warning).ToJsonValue();
+
+    if (lock_screen_dismissal_warnings.isMember(language_code)) {
+      return boost::optional<std::string>(
+          lock_screen_dismissal_warnings[language_code].asString());
+    }
+  }
+
+  return empty;
+}
+
 std::vector<UserFriendlyMessage> CacheManager::GetUserFriendlyMsg(
     const std::vector<std::string>& msg_codes,
     const std::string& language,

@@ -176,6 +176,17 @@ class PolicyManager : public usage_statistics::StatisticsManager {
       const = 0;
 
   /**
+   * @brief Returns message for lock screen that could be able to be dismissed
+   * while connected to SDL, allowing users the ability to interact with the
+   * app.
+   * @param language_code Language code for message
+   * @return string Message as string on specified language. If specified
+   * language is absent, returns uninitialized boost::optional
+   */
+  virtual const boost::optional<std::string> LockScreenDissmisalWarningMessage(
+      const std::string& language_code) const = 0;
+
+  /**
    * @brief Increments counter of ignition cycles
    */
   virtual void IncrementIgnitionCycles() = 0;

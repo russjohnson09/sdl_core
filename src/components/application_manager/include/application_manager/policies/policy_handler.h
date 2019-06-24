@@ -205,6 +205,8 @@ class PolicyHandler : public PolicyHandlerInterface,
   void OnExceededTimeout() OVERRIDE;
   void OnSystemReady() OVERRIDE;
   const boost::optional<bool> LockScreenDismissalEnabledState() const OVERRIDE;
+  const boost::optional<std::string> LockScreenDissmisalWarningMessage(
+      const std::string& language_code) const OVERRIDE;
   void PTUpdatedAt(Counters counter, int value) OVERRIDE;
   void add_listener(PolicyHandlerObserver* listener) OVERRIDE;
   void remove_listener(PolicyHandlerObserver* listener) OVERRIDE;
