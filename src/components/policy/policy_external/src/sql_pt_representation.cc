@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sstream>
+#include <string>
 
 #include "config_profile/profile.h"
 #include "policy/cache_manager.h"
@@ -566,6 +567,21 @@ void SQLPTRepresentation::GatherModuleConfig(
       const std::string& service = endpoints.GetString(1);
       const std::string& app_id = endpoints.GetString(2);
       config->endpoints[service][app_id].push_back(url);
+    }
+  }
+
+  utils::dbms::SQLQuery lock_screen_dismissal_warning(db());
+  if (!lock_screen_dismissal_warning.Prepare(
+          sql_pt::kSelectLockScreenDissmisalWarnings)) {
+    LOG4CXX_WARN(
+        logger_,
+        "Incorrect select statement for lock_screen_dismissal_warning");
+  } else {
+    while (lock_screen_dismissal_warning.Next()) {
+      const std::string text_body = lock_screen_dismissal_warning.GetString(0);
+      const std::string language_code =
+          lock_screen_dismissal_warning.GetString(1);
+      (*config->lock_screen_dismissal_warning)[language_code] = text_body;
     }
   }
 
@@ -1437,6 +1453,9 @@ bool SQLPTRepresentation::SaveModuleConfig(
     return false;
   }
 
+  if (!SaveLockScreenDissmisalWarmings(*config.lock_screen_dismissal_warning)) {
+    return false;
+  }
   return true;
 }
 
@@ -1469,6 +1488,36 @@ bool SQLPTRepresentation::SaveServiceEndpoints(
           return false;
         }
       }
+    }
+  }
+
+  return true;
+}
+
+bool SQLPTRepresentation::SaveLockScreenDissmisalWarmings(
+    const policy_table::LockScreenDissmisalWarnings&
+        lockScreenDissmisalWarnings) {
+  utils::dbms::SQLQuery query(db());
+  if (!query.Exec(sql_pt::kDeleteLockScreenDissmisalWarnings)) {
+    LOG4CXX_WARN(logger_,
+                 "Incorrect delete from lock_screen_dismissal_warning");
+    return false;
+  }
+
+  if (!query.Prepare(sql_pt::kInsertLockScreenDissmisalWarning)) {
+    LOG4CXX_WARN(
+        logger_,
+        "Incorrect insert statement for lock_screen_dismissal_warning");
+    return false;
+  }
+
+  for (const auto& item : lockScreenDissmisalWarnings) {
+    query.Bind(0, item.first);
+    query.Bind(1, item.second);
+    if (!query.Exec() || !query.Reset()) {
+      LOG4CXX_WARN(logger_,
+                   "Incorrect insert into lock_screen_dismissal_warning");
+      return false;
     }
   }
 

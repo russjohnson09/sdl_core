@@ -680,7 +680,9 @@ ModuleConfig::ModuleConfig(const Json::Value* value__)
     , preloaded_date(impl::ValueMember(value__, "preloaded_date"))
     , certificate(impl::ValueMember(value__, "certificate"))
     , lock_screen_dismissal_enabled(
-          impl::ValueMember(value__, "lock_screen_dismissal_enabled")) {}
+          impl::ValueMember(value__, "lock_screen_dismissal_enabled"))
+    , lock_screen_dismissal_warning(
+          impl::ValueMember(value__, "lock_screen_dismissal_warning")) {}
 
 void ModuleConfig::SafeCopyFrom(const ModuleConfig& from) {
   //  device_certificates = from.device_certificates;  // According to the
@@ -695,6 +697,7 @@ void ModuleConfig::SafeCopyFrom(const ModuleConfig& from) {
       from.notifications_per_minute_by_priority;
 
   lock_screen_dismissal_enabled = from.lock_screen_dismissal_enabled;
+  lock_screen_dismissal_warning = from.lock_screen_dismissal_warning;
 
   vehicle_make.assign_if_valid(from.vehicle_make);
   vehicle_model.assign_if_valid(from.vehicle_model);
@@ -730,6 +733,9 @@ Json::Value ModuleConfig::ToJsonValue() const {
   impl::WriteJsonField("lock_screen_dismissal_enabled",
                        lock_screen_dismissal_enabled,
                        &result__);
+  impl::WriteJsonField("lock_screen_dismissal_warning",
+                       *lock_screen_dismissal_warning,
+                       &result__);
   return result__;
 }
 
@@ -762,6 +768,9 @@ bool ModuleConfig::is_valid() const {
     return false;
   }
   if (!lock_screen_dismissal_enabled.is_valid()) {
+    return false;
+  }
+  if (!lock_screen_dismissal_warning.is_valid()) {
     return false;
   }
   if (!vehicle_make.is_valid()) {
@@ -819,6 +828,9 @@ bool ModuleConfig::struct_empty() const {
     return false;
   }
   if (lock_screen_dismissal_enabled.is_initialized()) {
+    return false;
+  }
+  if (lock_screen_dismissal_warning.is_initialized()) {
     return false;
   }
   if (vehicle_make.is_initialized()) {
@@ -880,6 +892,10 @@ void ModuleConfig::ReportErrors(rpc::ValidationReport* report__) const {
     lock_screen_dismissal_enabled.ReportErrors(
         &report__->ReportSubobject("lock_screen_dismissal_enabled"));
   }
+  if (!lock_screen_dismissal_warning.is_valid()) {
+    lock_screen_dismissal_warning->ReportErrors(
+        &report__->ReportSubobject("lock_screen_dismissal_warning"));
+  }
   if (!vehicle_make.is_valid()) {
     vehicle_make.ReportErrors(&report__->ReportSubobject("vehicle_make"));
   }
@@ -920,6 +936,7 @@ void ModuleConfig::SetPolicyTableType(PolicyTableType pt_type) {
   endpoints.SetPolicyTableType(pt_type);
   notifications_per_minute_by_priority.SetPolicyTableType(pt_type);
   lock_screen_dismissal_enabled.SetPolicyTableType(pt_type);
+  lock_screen_dismissal_warning.SetPolicyTableType(pt_type);
   vehicle_make.SetPolicyTableType(pt_type);
   vehicle_model.SetPolicyTableType(pt_type);
   vehicle_year.SetPolicyTableType(pt_type);

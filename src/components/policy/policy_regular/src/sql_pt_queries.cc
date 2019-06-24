@@ -79,6 +79,10 @@ const std::string kCreateSchema =
     "  `user_consent_prompt` TEXT, "
     "  `name` VARCHAR(100) NOT NULL "
     "); "
+    "CREATE TABLE IF NOT EXISTS `lock_screen_dismissal_warning`("
+    "  `text_body` TEXT, "
+    "  `language_code` VARCHAR(25) NOT NULL"
+    ");"
     "CREATE TABLE IF NOT EXISTS `priority`( "
     "  `value` VARCHAR(45) PRIMARY KEY NOT NULL "
     "); "
@@ -542,6 +546,7 @@ const std::string kDropSchema =
     "DROP TABLE IF EXISTS `priority`; "
     "DROP TABLE IF EXISTS `functional_group`; "
     "DROP TABLE IF EXISTS `module_config`; "
+    "DROP TABLE IF EXISTS `lock_screen_dismissal_warning`;"
     "DROP TABLE IF EXISTS `remote_rpc`; "
     "DROP INDEX IF EXISTS `remote_rpc.fk_remote_rpc_1_idx`; "
     "DROP TABLE IF EXISTS `module_meta`; "
@@ -579,6 +584,7 @@ const std::string kDeleteData =
     "DELETE FROM `remote_rpc`; "
     "DELETE FROM `usage_and_error_count`; "
     "DELETE FROM `device`; "
+    "DELETE FROM `lock_screen_dismissal_warning`;"
     "COMMIT; "
     "VACUUM;";
 
@@ -686,6 +692,10 @@ const std::string kUpdateModuleConfig =
     "  `vehicle_model` = ?, `vehicle_year` = ?,  lock_screen_dismissal_enabled "
     "= ?";
 
+const std::string kInsertLockScreenDissmisalWarning =
+    "INSERT INTO `lock_screen_dismissal_warning` (`text_body`, "
+    "`language_code`) VALUES (?, ?)";
+
 const std::string kInsertEndpoint =
     "INSERT INTO `endpoint` (`service`, `url`, `application_id`) "
     "  VALUES (?, ?, ?)";
@@ -708,6 +718,9 @@ const std::string kInsertAppLevel =
 const std::string kDeleteSecondsBetweenRetries =
     "DELETE FROM `seconds_between_retry`";
 
+const std::string kDeleteLockScreenDissmisalWarnings =
+    "DELETE FROM `lock_screen_dismissal_warning`";
+
 const std::string kDeleteEndpoint = "DELETE FROM `endpoint`";
 
 const std::string kDeleteAppLevel = "DELETE FROM `app_level`";
@@ -726,6 +739,13 @@ const std::string kSelectModuleConfig =
     " `timeout_after_x_seconds`, `certificate`, `vehicle_make`,"
     " `vehicle_model`, `vehicle_year` ,`lock_screen_dismissal_enabled`"
     " FROM `module_config`";
+
+const std::string kSelectLockScreenDissmisalWarnings =
+    "SELECT `text_body` FROM `lock_screen_dismissal_warning`";
+
+const std::string kSelectLockScreenDissmisalWarning =
+    "SELECT `text_body` FROM `lock_screen_dismissal_warning` WHERE "
+    "`language_code` = ? ";
 
 const std::string kSelectEndpoints =
     "SELECT `url`, `service`, `application_id` FROM `endpoint` ";

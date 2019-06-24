@@ -36,6 +36,7 @@
 #include <climits>
 #include "utils/macro.h"
 
+#include "boost/optional.hpp"
 #include "policy/policy_table/enums.h"
 #include "rpc_base/rpc_message.h"
 
@@ -88,6 +89,8 @@ typedef Array<Integer<uint16_t, 1, 1000>, 0, 5> SecondsBetweenRetries;
 typedef Map<MessageString, 0, 600> Languages;
 
 typedef Map<MessageLanguages, 0, 255> Messages;
+
+typedef Map<String<0, 255>, 0, 255> LockScreenDissmisalWarnings;
 
 typedef Map<AppLevel, 0, 255> AppLevels;
 
@@ -365,6 +368,7 @@ struct ModuleConfig : CompositeType {
   Optional<Boolean> preloaded_pt;
   Optional<Boolean> full_app_id_supported;
   Optional<Boolean> lock_screen_dismissal_enabled;
+  Optional<LockScreenDissmisalWarnings> lock_screen_dismissal_warning;
 
  public:
   ModuleConfig();

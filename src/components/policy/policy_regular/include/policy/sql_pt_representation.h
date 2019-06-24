@@ -217,6 +217,9 @@ class SQLPTRepresentation : public virtual PTRepresentation {
   const int32_t GetDBVersion() const;
   bool SaveRpcs(int64_t group_id, const policy_table::Rpc& rpcs);
   bool SaveServiceEndpoints(const policy_table::ServiceEndpoints& endpoints);
+  bool SaveLockScreenDissmisalWarmings(
+      const policy_table::LockScreenDissmisalWarnings&
+          lockScreenDissmisalWarnings);
   bool SaveSecondsBetweenRetries(
       const policy_table::SecondsBetweenRetries& seconds);
   bool SaveNumberOfNotificationsPerMinute(
