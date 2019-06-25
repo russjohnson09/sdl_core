@@ -1,0 +1,50 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
+  config.vm.hostname = "sdl_core"
+  config.vm.provision "shell", inline: $script, privileged: false
+
+  # Expose the following ports
+  #   3001: Expose SDL Core's file system
+  #   12345: Expose SDL Core's primary port. Used to communicate with the SDL Core instance over TCP
+  #   5050: Expose video streaming port
+  #   5080: Expose audio streaming port
+  #   8090: Expose time testing port
+  #   8888: Expose websocket port for core log streaming
+  #   9000: Websocket connection to the broker
+  #   9898: Expose miniature policy server port
+  config.vm.network "forwarded_port", guest: 3001, host: 3001, auto_correct: false
+  config.vm.network "forwarded_port", guest: 12345, host: 12345, auto_correct: false
+  config.vm.network "forwarded_port", guest: 5050, host: 5050, auto_correct: false
+  config.vm.network "forwarded_port", guest: 5080, host: 5080, auto_correct: false
+  config.vm.network "forwarded_port", guest: 8090, host: 8090, auto_correct: false
+  config.vm.network "forwarded_port", guest: 8888, host: 8888, auto_correct: false
+  config.vm.network "forwarded_port", guest: 9000, host: 9000, auto_correct: false
+  config.vm.network "forwarded_port", guest: 9898, host: 9898, auto_correct: false
+
+  # Increase memory for Parallels Desktop
+  config.vm.provider "parallels" do |p, o|
+    p.memory = "1024"
+  end
+
+  # Increase memory for Virtualbox
+  config.vm.provider "virtualbox" do |vb|
+        vb.memory = "1024"
+  end
+
+  # Increase memory for VMware
+  ["vmware_fusion", "vmware_workstation"].each do |p|
+    config.vm.provider p do |v|
+      v.vmx["memsize"] = "1024"
+    end
+  end
+end
+
+
+Vagrant.configure("2") do |config|
+  # other config here
+
+  config.vm.synced_folder "./../../", "/sdl_core"
+end
