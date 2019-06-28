@@ -1,3 +1,7 @@
+cmake is quick
+make is slow
+make install is ...
+
 vm use bridge adapter to create a new ip connection instead of
 forwarding.
 
@@ -44,14 +48,20 @@ TCPAdapterPort = 12345
 
 
 ##Make and install
-sudo su*__*
-cd /
-mkdir build
-cd build
+sudo su
+cd /sdl_core/build
+cmake ../../sdl_core
+make
+make install
+
+
+mkdir /build2
+cd build2
 cmake ../sdl_core
 make
 make install
 
+ln -s /build2 /sdl_core/build2
 
 ##Run
 cd bin
