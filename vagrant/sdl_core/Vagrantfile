@@ -6,7 +6,9 @@
 
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
+#https://app.vagrantup.com/jamesthinkbox/boxes/ubuntu-16.04-desktop-amd64
+  config.vm.box = "jamesthinkbox/ubuntu-16.04-desktop-amd64"
+  #config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
   config.vm.hostname = "sdl-core"
   #config.vm.provision "shell", inline: $script, privileged: false
 
