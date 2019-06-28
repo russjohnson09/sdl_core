@@ -1,3 +1,69 @@
+vm use bridge adapter to create a new ip connection instead of
+forwarding.
+
+
+
+192.168.1.87
+
+sql database keeps track of ...
+
+
+
+
+
+delete sql
+
+change ptu json to point to policy
+
+vagrant@sdl-core:/build/bin/storage$ ls
+8675401
+8675401_e128ba2f200bd187dcdfda1d91f2000fd5276194905f89127814226f8aa79ac9
+policy.sqlite
+vagrant@sdl-core:/build/bin/storage$ pwd
+/build/bin/storage
+
+
+
+
+
+
+brew install telnet
+
+
+
+[TransportManager]
+; Listening port form incoming TCP mobile connection
+TCPAdapterPort = 12345
+
+
+
+
+#Deploy
+
+##Install Dependencies
+
+
+##Make and install
+sudo su*__*
+cd /
+mkdir build
+cd build
+cmake ../sdl_core
+make
+make install
+
+
+##Run
+cd bin
+./start.sh   
+
+
+##Start HMI
+cd /sdl_hmi
+chromium-browser index.html
+
+
+
 https://stackoverflow.com/questions/2419566/best-way-to-use-multiple-ssh-private-keys-on-one-client
 
 

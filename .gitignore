@@ -9,3 +9,5 @@ src/appMain/build_config.txt
 
 
 .*
+
+.build/*
