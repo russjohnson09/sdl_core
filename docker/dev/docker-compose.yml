@@ -4,9 +4,9 @@ services:
     build: .
     privileged: true
     container_name: core_dev
-    volumes:
-      - './bin_dev:/build/bin/'
-      - './bin_x:/build_x/bin/'
+    #volumes: #slow compiling with volumes?
+      #- './bin_dev:/build/bin/'
+      #- './bin_x:/build_x/bin/'
     #expose:
     #  - "8500"
     ports:

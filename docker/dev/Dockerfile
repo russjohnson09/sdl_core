@@ -26,5 +26,6 @@ ENTRYPOINT /start-script.sh
 
 #cd /build_x
 #cmake -DEXTENDED_POLICY=EXTERNAL_PROPRIETARY ../sdl_core
+#cmake -DEXTENDED_POLICY=EXTERNAL_PROPRIETARY ../sdl_core
 #make
 #make install
