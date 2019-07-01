@@ -12,6 +12,12 @@ CMakeFiles	CONTRIBUTING.md  LICENSE    bin        install_manifest.txt  qnx_6.5.
 CMakeLists.txt	Doxyfile	 Makefile   cmake      mycert.pem	     src
 # pwd
 
+##No Space
+https://forums.docker.com/t/no-space-left-on-device-error/10894/12
+
+docker rm $(docker ps -q -f 'status=exited')
+docker rmi $(docker images -q -f "dangling=true")
+
 
 
 ##New Core
@@ -24,6 +30,29 @@ cd build
 cmake ../sdl_core
 make
 make install
+
+
+
+##Bluetooth
+In file included from /sdl_core/src/components/transport_manager/src/bluetooth/bluetooth_device.cc:34:0:
+/sdl_core/src/components/transport_manager/include/transport_manager/bluetooth/bluetooth_device.h:39:33: fatal error: bluetooth/bluetooth.h: No such file or directory
+
+apt-get install libbluetooth3 libbluetooth-dev bluez-tools
+apt-get update
+
+W: Failed to fetch http://deb.debian.org/debian/dists/jessie-updates/InRelease  Unable to find expected entry 'main/binary-amd64/Packages' in Release file (Wrong sources.list entry or malformed file)
+
+E: Some index files failed to download. They have been ignored, or old ones used instead.
+
+
+/sdl_core/src/components/transport_manager/include/transport_manager/usb/libusb/usb_handler.h:39:31: fatal error: libusb-1.0/libusb.h: No such file or directory
+ #include <libusb-1.0/libusb.h>
+ 
+Bellow is suggested in the readme but does not seem to work
+apt-get install libusb-dev
+
+This matches what is required.
+apt-get install libusb-1.0-0-dev
 
 
 ##IP Address
@@ -47,6 +76,24 @@ Michaels-MBP:sdl_core russelljohnson$ docker inspect core | grep IP
 
 
 
+
+#Logging
+sdl_core/src/appMain/log4cxx.properties
+
+/bin/log4cxx.properties
+log4j.rootLogger=ALL, Console, SmartDeviceLinkCoreLogFile
+
+
+#Policy Server Config
+Delete sqlite db.
+/usr/sdl/bin/storage/policy.sqlite
+
+https://www.digitalocean.com/community/tutorials/how-to-share-data-between-the-docker-container-and-the-host
+
+
+
+
+https://stackoverflow.com/questions/28302178/how-can-i-add-a-volume-to-an-existing-docker-container
 
 
 
