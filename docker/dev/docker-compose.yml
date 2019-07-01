@@ -4,8 +4,8 @@ services:
     build: .
     privileged: true
     container_name: core_dev
-    #volumes:
-    #  - './../../storage:/usr/sdl/bin/storage/'
+    volumes:
+      - './../../storage:/usr/sdl/bin/storage/'
     #expose:
     #  - "8500"
     ports:
