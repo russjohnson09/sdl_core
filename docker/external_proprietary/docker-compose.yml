@@ -3,7 +3,7 @@ services:
   web:
     build: .
     privileged: true
-    container_name: core_dev
+    container_name: core_x
     volumes:
       - './../../storage:/usr/sdl/bin/storage/'
     #expose:
