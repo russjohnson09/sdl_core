@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    build: .
+    privileged: true
+    container_name: core_dev
+    volumes:
+      - './../../storage:/usr/sdl/bin/storage/'
+    #expose:
+    #  - "8500"
+    ports:
+      - "32784:3001"
+      - "32783:8080"
+      - "32782:8087"
+      - "32781:12345"
+      #- "12345:32781"
+      #- "3001:32784"
+      #- "8080:32783"
+      #- "8087:32782"
+      #- "12345:32781"
+    tty: true

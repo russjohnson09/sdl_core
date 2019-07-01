@@ -1,4 +1,4 @@
-FROM russjohnson09/sdl_core:dev
+FROM russjohnson09/sdl_core:external_proprietary
 
 
 ADD ./start-script.sh /start-script.sh
