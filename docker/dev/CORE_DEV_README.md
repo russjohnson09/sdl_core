@@ -1,3 +1,78 @@
+#Install python 3
+https://tecadmin.net/install-python-3-7-on-ubuntu-linuxmint/
+
+wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz
+tar xzf Python-3.7.3.tgz
+cd Python-3.7.3
+sudo ./configure --enable-optimizations
+make install
+
+
+
+apt-get install ppa-purge
+
+https://askubuntu.com/questions/865554/how-do-i-install-python-3-6-using-apt-get
+sudo add-apt-repository ppa:deadsnakes/ppa
+
+
+add-apt-repository ppa:deadsnakes/ppa
+
+apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz
+
+
+
+
+
+https://askubuntu.com/questions/320996/how-to-make-python-program-command-execute-python-3
+
+the python manager example should use the correct version though?
+
+
+
+apt-get install software-properties-common
+
+apt-get install python3.6
+apt install python3-pip
+
+http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
+
+Traceback (most recent call last):
+  File "sample_policy_manager.py", line 7, in <module>
+    import tornado.httpserver
+  File "/usr/local/lib/python2.7/dist-packages/tornado/httpserver.py", line 144
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    
+#Install pip
+apt-get install python-pip
+
+#Python Policy Manager
+python sample_policy_manager.py
+Traceback (most recent call last):
+  File "sample_policy_manager.py", line 7, in <module>
+    import tornado.httpserver
+  File "/usr/local/lib/python2.7/dist-packages/tornado/httpserver.py", line 144
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+                            ^
+SyntaxError: invalid syntax
+
+https://pypi.org/project/tornado/3.2.1/
+https://github.com/OnBeep/opuslib/issues/5
+pip3 install tornado
+pip install opuslib==2.0.0
+
+
+python3 sample_policy_manager.py
+https://stackoverflow.com/questions/43948454/python-invalid-syntax-with-async-def
+# python3 sample_policy_manager.py
+Traceback (most recent call last):
+  File "sample_policy_manager.py", line 7, in <module>
+    import tornado.httpserver
+  File "/usr/local/lib/python3.4/dist-packages/tornado/httpserver.py", line 204
+    async def close_all_connections(self) -> None:
+            ^
+SyntaxError: invalid syntax
+
 #Create Docker Image For Simple Core
 
 ##Remove any potential duplicates
@@ -24,11 +99,77 @@ rm /usr/sdl/bin/storage -R
 
 
 ##Commit and Test
-docker commit -m "core_simple" core_simple russjohnson09/sdl_core:simple
+docker commit -m "core_simple_test" core_simple_test russjohnson09/sdl_core:xp3
 
 
 ##Test With TCP And Main Websocket Forwarding Only
-docker run -d -p 12346:12345 -p 8088:8087 --name core_simple_test russjohnson09/sdl_core:simple
+docker run -d -p 12346:12345 -p 8088:8087 --name core_simple_test russjohnson09/sdl_core:xp3
+
+
+###Add Local SDL Policy
+docker run -d -p 12347:12345 -p 8089:8087 --name core_simple_test_2 russjohnson09/sdl_core:simple
+
+nano /etc/hosts
+192.168.1.57 policy.localhost
+192.168.1.57 shaid.localhost
+
+docker start core_simple_test_2
+
+docker exec -it core_simple_test_2 /bin/bash
+
+
+docker start core_simple_test
+
+https://forums.docker.com/t/run-command-in-stopped-container/343
+docker start -ai core_simple_test
+
+docker start -ai core_simple_test tail -f /var/log/something
+
+
+docker run -dit core_simple_test
+docker run -it -p 8091:8091 core_simple_test
+
+
+docker attach core_simple_test
+docker start -it core_simple_test
+
+
+docker exec -it core_simple_test /bin/bash
+
+
+
+####Add To Config
+/usr/sdl/bin/sdl_preloaded_pt.json
+
+
+http://policy.localhost/api/v1/production/policy
+http://shaid.localhost
+```
+"0x07": {
+    "default": ["http://192.168.1.57:4005/api/v1/production/policy"]
+        "default": ["http://policy.localhost/api/v1/production/policy"]
+},
+"0x04": {
+    "default": ["http://ivsu.software.ford.com/api/getsoftwareupdates"]
+},
+"queryAppsUrl": {
+    "default": ["http://192.168.1.57:4001"]
+},
+"lock_screen_icon_url": {
+    "default": ["http://i.imgur.com/QwZ9uKG.png"]
+}
+```
+
+###Reset DB And Main Thread
+rm /usr/sdl/bin/storage -R
+
+lsof -i
+MainThrea  18 root    9u  IPv4 1371614      0t0  TCP *:12345 (LISTEN)
+
+kill this or restart the container.
+
+
+
 
 ##Set Local sdl_hmi
 russ_hmi/app/Flags.js

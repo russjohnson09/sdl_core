@@ -1,3 +1,18 @@
+sudo su
+
+cmake -DEXTENDED_POLICY=EXTERNAL_PROPRIETARY ../sdl_core
+make VERBOSE=1
+make install
+
+
+
+
+
+
+
+
+
+
 cmake is quick
 make is slow
 make install is ...
