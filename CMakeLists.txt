@@ -30,6 +30,10 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+#set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+
+
+
 set (PROJECT smartDeviceLinkCore)
 project (${PROJECT})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tools/cmake/modules/")
@@ -51,7 +55,10 @@ option(ENABLE_LOG "Logging feature" ON)
 option(ENABLE_GCOV "gcov code coverage feature" OFF)
 option(ENABLE_SANITIZE "Sanitize tool" OFF)
 option(ENABLE_SECURITY "Security Ford protocol protection" ON)
-option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" ON)
+
+
+option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" OFF)
+
 option(USE_COTIRE "Use Cotire to speed up build (currently only for commands tests)" ON)
 option(USE_GOLD_LD "Use gold linker intead of GNU linker" ON)
 option(USE_CCACHE "Turn on ccache usage" ON)

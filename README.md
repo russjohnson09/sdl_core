@@ -1,3 +1,16 @@
+See /vagrant
+cmake ../sdl_core -DENABLE_HMI_PTU_DECRYPTION=OFF 
+
+
+
+
+
+
+
+
+
+
+
 [![Slack Status](http://sdlslack.herokuapp.com/badge.svg)](http://slack.smartdevicelink.com)
 [![codecov.io](https://codecov.io/github/smartdevicelink/sdl_core/coverage.svg?branch=develop)](https://codecov.io/github/smartdevicelink/sdl_core?branch=develop)
 [![Build Status](http://opensdl-jenkins.luxoft.com:8080/view/develop/job/develop_nightly_coverage/badge/icon)](http://opensdl-jenkins.luxoft.com:8080/view/develop/job/develop_nightly_coverage/)

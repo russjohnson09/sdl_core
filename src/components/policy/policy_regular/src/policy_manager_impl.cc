@@ -1029,9 +1029,21 @@ bool PolicyManagerImpl::ExceededIgnitionCycles() {
   return 0 == cache_->IgnitionCyclesBeforeExchange();
 }
 
+
+//sdl_core/src/components/policy/policy_regular/src/policy_table/types.cc
+
+//bool PolicyBase::is_valid() const {
+//  if (!priority.is_valid()) {
+//    return false;
+//  }
+//  return Validate();
+//}
+//sdl_core/src/components/application_manager/test/policy_handler_test.cc
 bool PolicyManagerImpl::IsPTValid(
     std::shared_ptr<policy_table::Table> policy_table,
     policy_table::PolicyTableType type) const {
+        LOG4CXX_INFO(logger_, "IsPTValid");
+
   policy_table->SetPolicyTableType(type);
   if (!policy_table->is_valid()) {
     LOG4CXX_ERROR(logger_, "Policy table is not valid.");

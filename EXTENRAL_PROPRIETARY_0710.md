@@ -114,9 +114,77 @@ docker run -d -p 12345:44567  --name core_temp5 russjohnson09/sdl_core:dev
 
 
 #build2 contains no additional arguments
-udo chown -R vagrant:vagrant /build2
+sudo chown -R vagrant:vagrant /build2
 cd /build2
 cmake ../sdl_core
 make VERBOSE=1
 make install
 
+
+
+##rebuild
+https://www.boost.org/
+
+c++ librarys
+
+cotire
+ccache
+
+
+
+cmake ../sdl_core -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
+make -j8
+make install
+
+https://stackoverflow.com/questions/318398/why-does-c-compilation-take-so-long
+
+http://www.bitsnbites.eu/faster-c-builds/
+
+precompiled headers
+
+
+sudo apt-get install ccache
+export PATH=/usr/lib/ccache:$PATH
+
+
+cd /build2
+make -j8
+make install
+
+
+
+
+#Cotire
+https://github.com/sakra/cotire
+
+
+cd /
+sudo git clone https://github.com/sakra/cotire.git
+sudo chown vagrant:vagrant cotire -R
+
+
+
+cp cotire/CMake/cotire.cmake /sdl_core/
+
+
+
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+
+
+
+#hmi
+cmake ../sdl_core -DENABLE_HMI_PTU_DECRYPTION=OFF 
+make
+make install
+
+
+
+
+#run manticore
+docker run -d -p 12345:12345 -p 3001:3001 -p 9000:9000 --name core smartdevicelink/manticore-sdl-core:default-5.1.3
+
+
+
+
+
+sqlite3 policy.sqlite

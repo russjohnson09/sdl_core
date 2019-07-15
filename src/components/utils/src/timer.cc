@@ -206,7 +206,7 @@ bool timer::Timer::TimerDelegate::finalized_flag() const {
 void timer::Timer::TimerDelegate::threadMain() {
   sync_primitives::AutoLock auto_lock(state_lock_ref_);
   while (!stop_flag_ && !finalized_flag_) {
-    LOG4CXX_DEBUG(logger_, "Milliseconds left to wait: " << timeout_);
+    LOG4CXX_DEBUG(logger_, "Version 1...Milliseconds left to wait: " << timeout_);
     if (sync_primitives::ConditionalVariable::kTimeout ==
         state_condition_.WaitFor(auto_lock, timeout_)) {
       LOG4CXX_DEBUG(logger_,
