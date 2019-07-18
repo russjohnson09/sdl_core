@@ -1,0 +1,1 @@
+cmd='touch;aclocal.m4;configure.ac;Makefile.am;Makefile.in;configure;config.h.in;libbson.pc.in;&&;./configure;--prefix=/usr/local'

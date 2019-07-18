@@ -45,12 +45,12 @@ Description: Sdl Core
 
 dpkg-deb -v --build /core_builds /sdl_core/compiled_packages/sdl-core_1.0-1.deb
 
-sudo apt install ./sdl-core_1.0-1.deb
+sudo apt-get remove sdl-core
+sudo apt install /sdl_core/compiled_packages/sdl-core_1.0-1.deb
+sdl-core
 
 
 dpkg-deb -v --build bin sdl-core_1.0-1.deb
-
-
 
 dpkg-deb --build sdl-core_1.0-1
 

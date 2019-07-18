@@ -1,0 +1,3 @@
+repository='https://github.com/smartdevicelink/bson_c_lib.git'
+module=''
+tag='origin'
