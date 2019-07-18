@@ -225,33 +225,6 @@ src/auto_trace.cc.s:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/auto_trace.cc.s
 .PHONY : src/auto_trace.cc.s
 
-src/back_trace.o: src/back_trace.cc.o
-
-.PHONY : src/back_trace.o
-
-# target to build an object file
-src/back_trace.cc.o:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/back_trace.cc.o
-.PHONY : src/back_trace.cc.o
-
-src/back_trace.i: src/back_trace.cc.i
-
-.PHONY : src/back_trace.i
-
-# target to preprocess a source file
-src/back_trace.cc.i:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/back_trace.cc.i
-.PHONY : src/back_trace.cc.i
-
-src/back_trace.s: src/back_trace.cc.s
-
-.PHONY : src/back_trace.s
-
-# target to generate assembly for a file
-src/back_trace.cc.s:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/back_trace.cc.s
-.PHONY : src/back_trace.cc.s
-
 src/bitstream.o: src/bitstream.cc.o
 
 .PHONY : src/bitstream.o
@@ -892,9 +865,6 @@ help:
 	@echo "... src/auto_trace.o"
 	@echo "... src/auto_trace.i"
 	@echo "... src/auto_trace.s"
-	@echo "... src/back_trace.o"
-	@echo "... src/back_trace.i"
-	@echo "... src/back_trace.s"
 	@echo "... src/bitstream.o"
 	@echo "... src/bitstream.i"
 	@echo "... src/bitstream.s"

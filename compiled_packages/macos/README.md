@@ -48,6 +48,9 @@ CMake Error at tools/cmake/modules/FindUDev.cmake:51 (MESSAGE):
 
 
 #make
+cmake ../../
+
+sudo make
 
 https://github.com/bazelbuild/bazel/issues/3622
 
@@ -76,3 +79,68 @@ https://embeddedartistry.com/blog/2017/5/3/-werror-is-not-your-friend
 
 
 make -d
+
+
+
+/Users/russelljohnson/dev/sdl_core/tools/intergen/utils/include/utils/common_types.h:95:37: error: reference to non-static member function must be called
+    bool valid_max = StringToNumber(max, &max_)
+                                    ^~~
+/Users/russelljohnson/dev/sdl_core/tools/intergen
+
+
+changed this to use a pointer for max &max
+
+
+
+
+/Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:40:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+
+http://macappstore.org/log4cxx/
+
+brew install log4cxx
+
+
+
+/Users/russelljohnson/dev/sdl_core/src/components/config_profile/src/ini_file.cc:281:7: error: 'getCurrentThreadName' is a private member of 'log4cxx::spi::LoggingEvent'
+      LOG4CXX_WARN_WITH_ERRNO(
+
+
+
+sdl_core/src/components/include/utils/logger.h
+
+#define LOG4CXX_ERROR_WITH_ERRNO(loggerPtr, message)                           \
+  LOG4CXX_ERROR(loggerPtr,                                                     \
+                message << ", error code " << errno << " (" << strerror(errno) \
+                        << ")")
+
+#define LOG4CXX_WARN_WITH_ERRNO(loggerPtr, message)                           \
+  LOG4CXX_WARN(loggerPtr,                                                     \
+               message << ", error code " << errno << " (" << strerror(errno) \
+                       << ")")
+
+#else  // ENABLE_LOG is OFF
+
+
+https://www.tutorialspoint.com/cplusplus/cpp_class_access_modifiers
+
+
+sdl_core/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx/spi/loggingevent.h
+
+It looks like 
+getCurrentThreadName
+is public in the .h file
+
+
+https://github.com/smartdevicelink/sdl_core/issues/1495
+
+
+#log4cxx
+should not be installed and should use the thrid party in the core repo.
+
+brew remove log4cxx
+
+rerun cmake?
+
+
+/Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:40:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+

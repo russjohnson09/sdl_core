@@ -521,19 +521,6 @@ dbms/fast:
 .PHONY : dbms/fast
 
 #=============================================================================
-# Target rules for targets named SecurityManager
-
-# Build rule for target.
-SecurityManager: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 SecurityManager
-.PHONY : SecurityManager
-
-# fast build rule for target.
-SecurityManager/fast:
-	$(MAKE) -f src/components/security_manager/CMakeFiles/SecurityManager.dir/build.make src/components/security_manager/CMakeFiles/SecurityManager.dir/build
-.PHONY : SecurityManager/fast
-
-#=============================================================================
 # Target rules for targets named copy_policy_library
 
 # Build rule for target.
@@ -794,19 +781,6 @@ MediaManager/fast:
 .PHONY : MediaManager/fast
 
 #=============================================================================
-# Target rules for targets named TelemetryMonitor
-
-# Build rule for target.
-TelemetryMonitor: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 TelemetryMonitor
-.PHONY : TelemetryMonitor
-
-# fast build rule for target.
-TelemetryMonitor/fast:
-	$(MAKE) -f src/components/telemetry_monitor/CMakeFiles/TelemetryMonitor.dir/build.make src/components/telemetry_monitor/CMakeFiles/TelemetryMonitor.dir/build
-.PHONY : TelemetryMonitor/fast
-
-#=============================================================================
 # Target rules for targets named smartDeviceLinkCore
 
 # Build rule for target.
@@ -885,7 +859,6 @@ help:
 	@echo "... connectionHandler"
 	@echo "... Utils"
 	@echo "... dbms"
-	@echo "... SecurityManager"
 	@echo "... copy_policy_library"
 	@echo "... Policy"
 	@echo "... UsageStatistics"
@@ -906,7 +879,6 @@ help:
 	@echo "... HMIMessageHandler"
 	@echo "... ConfigProfile"
 	@echo "... MediaManager"
-	@echo "... TelemetryMonitor"
 	@echo "... smartDeviceLinkCore"
 	@echo "... LowVoltageHandlerObjLibrary"
 	@echo "... appenders"

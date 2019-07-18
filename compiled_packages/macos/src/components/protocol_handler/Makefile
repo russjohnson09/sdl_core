@@ -171,33 +171,6 @@ ProtocolHandler/fast:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/build.make src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/build
 .PHONY : ProtocolHandler/fast
 
-src/handshake_handler.o: src/handshake_handler.cc.o
-
-.PHONY : src/handshake_handler.o
-
-# target to build an object file
-src/handshake_handler.cc.o:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/build.make src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/src/handshake_handler.cc.o
-.PHONY : src/handshake_handler.cc.o
-
-src/handshake_handler.i: src/handshake_handler.cc.i
-
-.PHONY : src/handshake_handler.i
-
-# target to preprocess a source file
-src/handshake_handler.cc.i:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/build.make src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/src/handshake_handler.cc.i
-.PHONY : src/handshake_handler.cc.i
-
-src/handshake_handler.s: src/handshake_handler.cc.s
-
-.PHONY : src/handshake_handler.s
-
-# target to generate assembly for a file
-src/handshake_handler.cc.s:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/build.make src/components/protocol_handler/CMakeFiles/ProtocolHandler.dir/src/handshake_handler.cc.s
-.PHONY : src/handshake_handler.cc.s
-
 src/incoming_data_handler.o: src/incoming_data_handler.cc.o
 
 .PHONY : src/incoming_data_handler.o
@@ -346,9 +319,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... ProtocolHandler"
-	@echo "... src/handshake_handler.o"
-	@echo "... src/handshake_handler.i"
-	@echo "... src/handshake_handler.s"
 	@echo "... src/incoming_data_handler.o"
 	@echo "... src/incoming_data_handler.i"
 	@echo "... src/incoming_data_handler.s"
