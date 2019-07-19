@@ -30,12 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "application_manager/message_helper.h"
 #include "application_manager/mock_message_helper.h"
+#include "application_manager/message_helper.h"
 #include "application_manager/policies/policy_handler_interface.h"
-#include "transport_manager/common.h"
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "transport_manager/common.h"
 
 namespace application_manager {
 
@@ -368,18 +368,18 @@ std::string MessageHelper::CommonLanguageToString(
 
 smart_objects::SmartObjectSPtr MessageHelper::GetBCActivateAppRequestToHMI(
     ApplicationConstSharedPtr app,
-    const protocol_handler::SessionObserver& session_observer,
     const policy::PolicyHandlerInterface& policy_handler,
     hmi_apis::Common_HMILevel::eType level,
     bool send_policy_priority,
     ApplicationManager& app_mngr) {
   return MockMessageHelper::message_helper_mock()->GetBCActivateAppRequestToHMI(
-      app,
-      session_observer,
-      policy_handler,
-      level,
-      send_policy_priority,
-      app_mngr);
+      app, policy_handler, level, send_policy_priority, app_mngr);
+}
+
+smart_objects::SmartObjectSPtr MessageHelper::GetBCCloseApplicationRequestToHMI(
+    ApplicationConstSharedPtr app, ApplicationManager& app_mngr) {
+  return MockMessageHelper::message_helper_mock()
+      ->GetBCCloseApplicationRequestToHMI(app, app_mngr);
 }
 
 ns_smart_device_link::ns_smart_objects::SmartObjectSPtr

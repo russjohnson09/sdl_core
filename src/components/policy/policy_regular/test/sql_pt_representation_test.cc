@@ -29,39 +29,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
-#include <string>
+#include <stdio.h>
+#include <sys/stat.h>
 #include <algorithm>
 #include <fstream>
 #include <memory>
-#include <stdio.h>
-#include <sys/stat.h>
+#include <string>
+#include <vector>
 
 #include "gtest/gtest.h"
-#include "policy/driver_dbms.h"
-#include "policy/sql_pt_representation.h"
-#include "policy/policy_types.h"
-#include "policy/mock_policy_settings.h"
-#include "policy/policy_table/types.h"
-#include "policy/policy_table/enums.h"
-#include "json/writer.h"
 #include "json/reader.h"
+#include "json/writer.h"
+#include "policy/driver_dbms.h"
+#include "policy/mock_policy_settings.h"
+#include "policy/policy_table/enums.h"
+#include "policy/policy_table/types.h"
+#include "policy/policy_types.h"
+#include "policy/sql_pt_representation.h"
 #include "rpc_base/rpc_base.h"
 
 #include "utils/file_system.h"
 #include "utils/sqlite_wrapper/sql_database.h"
 
 namespace policy_table = rpc::policy_table_interface_base;
-using policy::SQLPTRepresentation;
 using policy::CheckPermissionResult;
-using policy::UserFriendlyMessage;
 using policy::EndpointUrls;
+using policy::SQLPTRepresentation;
+using policy::UserFriendlyMessage;
 using policy::VehicleInfo;
 
-using testing::ReturnRef;
-using testing::Return;
-using testing::NiceMock;
 using testing::Mock;
+using testing::NiceMock;
+using testing::Return;
+using testing::ReturnRef;
 
 namespace test {
 namespace components {
@@ -322,6 +322,8 @@ class SQLPTRepresentationTest : public SQLPTRepresentation,
     app_policies["1234"]["steal_focus"] = Json::Value(false);
     app_policies["1234"]["RequestType"] = Json::Value(Json::arrayValue);
     app_policies["1234"]["app_services"] = Json::Value(Json::objectValue);
+    app_policies["1234"]["icon_url"] =
+        Json::Value("http:://www.sdl.com/image.png");
     app_policies["1234"]["app_services"]["MEDIA"] =
         Json::Value(Json::objectValue);
     app_policies["1234"]["app_services"]["MEDIA"]["service_names"] =
@@ -1745,6 +1747,11 @@ TEST_F(SQLPTRepresentationTest, Save_SetPolicyTableThenSave_ExpectSavedToPT) {
 
   EXPECT_TRUE(handled_rpcs.is_initialized());
   EXPECT_EQ(handled_rpcs[0].function_id, 41);
+
+  policy_table::ApplicationPolicies& apps = policies.apps;
+  auto icon_url = *(apps[kAppId].icon_url);
+
+  EXPECT_EQ(std::string(icon_url), "http:://www.sdl.com/image.png");
 }
 
 }  // namespace policy_test

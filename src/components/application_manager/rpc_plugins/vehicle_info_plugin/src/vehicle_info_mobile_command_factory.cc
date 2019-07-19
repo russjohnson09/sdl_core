@@ -187,4 +187,4 @@ app_mngr::CommandCreator& VehicleInfoMobileCommandFactory::get_creator_factory(
       application_manager_, rpc_service_, hmi_capabilities_, policy_handler_);
   return factory.GetCreator<app_mngr::InvalidCommand>();
 }
-}
+}  // namespace vehicle_info_plugin
