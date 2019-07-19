@@ -46,6 +46,11 @@
 #include <unistd.h>
 #ifdef __linux__
 #include <linux/tcp.h>
+#elif defined(OS_DARWIN)
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+//#include <netinet/tcp_var.h>
+#include <sys/time.h>
 #else  // __linux__
 #include <netinet/in.h>
 #include <netinet/tcp.h>

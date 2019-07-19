@@ -894,6 +894,12 @@ class Profile : public protocol_handler::ProtocolHandlerSettings,
                      const char* const pSection,
                      const char* const pKey) const;
 
+//platform dependent implementation using size_t causes some issues here with mac.
+  bool ReadUIntValue(size_t* value,
+                     uint64_t default_value,
+                     const char* const pSection,
+                     const char* const pKey) const;
+
   /**
    * @brief Checks, if path is relative
    * @param path Path

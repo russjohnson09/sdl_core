@@ -2545,6 +2545,10 @@ std::vector<std::string> Profile::ReadStringContainer(
   return value_container;
 }
 
+//size_t having trouble converting?
+//http://www.duskborn.com/posts/on-the-use-and-abuse-of-size_t/
+//It is platform dependent.
+//uintptr_t
 bool Profile::ReadUIntValue(uint16_t* value,
                             uint16_t default_value,
                             const char* const pSection,
@@ -2593,6 +2597,26 @@ bool Profile::ReadUIntValue(uint32_t* value,
 }
 
 bool Profile::ReadUIntValue(uint64_t* value,
+                            uint64_t default_value,
+                            const char* const pSection,
+                            const char* const pKey) const {
+  std::string string_value;
+  if (!ReadValue(&string_value, pSection, pKey)) {
+    *value = default_value;
+    return false;
+  } else {
+    uint64_t user_value;
+    if (!StringToNumber(string_value, user_value)) {
+      *value = default_value;
+      return false;
+    }
+
+    *value = user_value;
+    return true;
+  }
+}
+
+bool Profile::ReadUIntValue(size_t* value,
                             uint64_t default_value,
                             const char* const pSection,
                             const char* const pKey) const {

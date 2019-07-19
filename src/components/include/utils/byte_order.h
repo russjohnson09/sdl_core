@@ -37,6 +37,16 @@
 #include <gulliver.h>
 #define BE_TO_LE32(x) ENDIAN_SWAP32(&(x));
 #define LE_TO_BE32(x) ENDIAN_SWAP32(&(x));
+#elif defined(OS_DARWIN)
+//https://stackoverflow.com/questions/41770887/cross-platform-definition-of-byteswap-uint64-and-byteswap-ulong
+#include <libkern/OSByteOrder.h>
+#define BE_TO_LE32(x) OSSwapInt32(x)
+#define LE_TO_BE32(x) OSSwapInt64(x)
+
+//#include <gulliver.h>
+//https://stackoverflow.com/questions/11397173/c-32-bit-word-byte-swapping
+//#define BE_TO_LE32(x) ENDIAN_SWAP32(&(x));
+//#define LE_TO_BE32(x) ENDIAN_SWAP32(&(x));
 #else
 #include <byteswap.h>
 #define BE_TO_LE32(x) bswap_32(x)
