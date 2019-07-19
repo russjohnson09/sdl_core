@@ -58,36 +58,24 @@ Json::Value PolicyBase::ToJsonValue() const {
 }
 
 bool PolicyBase::is_valid() const {
-//  LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
   if (!groups.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
   if (!preconsented_groups.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
-
   if (!priority.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
-
   if (!default_hmi.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
-
   if (!keep_context.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
-
   if (!steal_focus.is_valid()) {
     return false;
   }
-//    LOG4CXX_INFO(logger_, "PolicyBase::is_valid");
-
   return Validate();
 }
 
