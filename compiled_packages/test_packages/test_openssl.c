@@ -15,3 +15,9 @@ int main()
 
 
 //g++ test_openssl.c -o test_openssl.o
+
+
+
+
+//g++ -g -x c++ -Wall test_openssl.c -o test_openssl.o
+

@@ -51,6 +51,15 @@ const int EOK = 0;
 const size_t THREAD_NAME_SIZE = 15;
 #endif
 
+#if defined(OS_DARWIN)
+//const size_t THREAD_NAME_SIZE = 15;
+//const int rc = pthread_setname_np(thread_id, name.c_str());
+int pthread_setname_np(threads::PlatformThreadHandle id, std::string)
+{
+  return 0;
+}
+#endif
+
 namespace threads {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "Utils")

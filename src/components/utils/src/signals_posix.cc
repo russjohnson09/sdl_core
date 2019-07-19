@@ -37,6 +37,10 @@
 
 #include "utils/signals.h"
 
+#if defined(OS_DARWIN)
+const int SIGRTMIN = 0;
+#endif
+
 namespace utils {
 bool Signals::UnsubscribeFromTermination() {
   // Disable some system signals receiving in thread

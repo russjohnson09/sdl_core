@@ -360,6 +360,60 @@ src/commands/hmi/allow_app_response.cc.s:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/allow_app_response.cc.s
 .PHONY : src/commands/hmi/allow_app_response.cc.s
 
+src/commands/hmi/basic_communication_close_application_request.o: src/commands/hmi/basic_communication_close_application_request.cc.o
+
+.PHONY : src/commands/hmi/basic_communication_close_application_request.o
+
+# target to build an object file
+src/commands/hmi/basic_communication_close_application_request.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_request.cc.o
+.PHONY : src/commands/hmi/basic_communication_close_application_request.cc.o
+
+src/commands/hmi/basic_communication_close_application_request.i: src/commands/hmi/basic_communication_close_application_request.cc.i
+
+.PHONY : src/commands/hmi/basic_communication_close_application_request.i
+
+# target to preprocess a source file
+src/commands/hmi/basic_communication_close_application_request.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_request.cc.i
+.PHONY : src/commands/hmi/basic_communication_close_application_request.cc.i
+
+src/commands/hmi/basic_communication_close_application_request.s: src/commands/hmi/basic_communication_close_application_request.cc.s
+
+.PHONY : src/commands/hmi/basic_communication_close_application_request.s
+
+# target to generate assembly for a file
+src/commands/hmi/basic_communication_close_application_request.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_request.cc.s
+.PHONY : src/commands/hmi/basic_communication_close_application_request.cc.s
+
+src/commands/hmi/basic_communication_close_application_response.o: src/commands/hmi/basic_communication_close_application_response.cc.o
+
+.PHONY : src/commands/hmi/basic_communication_close_application_response.o
+
+# target to build an object file
+src/commands/hmi/basic_communication_close_application_response.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_response.cc.o
+.PHONY : src/commands/hmi/basic_communication_close_application_response.cc.o
+
+src/commands/hmi/basic_communication_close_application_response.i: src/commands/hmi/basic_communication_close_application_response.cc.i
+
+.PHONY : src/commands/hmi/basic_communication_close_application_response.i
+
+# target to preprocess a source file
+src/commands/hmi/basic_communication_close_application_response.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_response.cc.i
+.PHONY : src/commands/hmi/basic_communication_close_application_response.cc.i
+
+src/commands/hmi/basic_communication_close_application_response.s: src/commands/hmi/basic_communication_close_application_response.cc.s
+
+.PHONY : src/commands/hmi/basic_communication_close_application_response.s
+
+# target to generate assembly for a file
+src/commands/hmi/basic_communication_close_application_response.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/hmi/basic_communication_close_application_response.cc.s
+.PHONY : src/commands/hmi/basic_communication_close_application_response.cc.s
+
 src/commands/hmi/basic_communication_get_system_time_request.o: src/commands/hmi/basic_communication_get_system_time_request.cc.o
 
 .PHONY : src/commands/hmi/basic_communication_get_system_time_request.o
@@ -6462,6 +6516,60 @@ src/commands/mobile/change_registration_response.cc.s:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/change_registration_response.cc.s
 .PHONY : src/commands/mobile/change_registration_response.cc.s
 
+src/commands/mobile/close_application_request.o: src/commands/mobile/close_application_request.cc.o
+
+.PHONY : src/commands/mobile/close_application_request.o
+
+# target to build an object file
+src/commands/mobile/close_application_request.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_request.cc.o
+.PHONY : src/commands/mobile/close_application_request.cc.o
+
+src/commands/mobile/close_application_request.i: src/commands/mobile/close_application_request.cc.i
+
+.PHONY : src/commands/mobile/close_application_request.i
+
+# target to preprocess a source file
+src/commands/mobile/close_application_request.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_request.cc.i
+.PHONY : src/commands/mobile/close_application_request.cc.i
+
+src/commands/mobile/close_application_request.s: src/commands/mobile/close_application_request.cc.s
+
+.PHONY : src/commands/mobile/close_application_request.s
+
+# target to generate assembly for a file
+src/commands/mobile/close_application_request.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_request.cc.s
+.PHONY : src/commands/mobile/close_application_request.cc.s
+
+src/commands/mobile/close_application_response.o: src/commands/mobile/close_application_response.cc.o
+
+.PHONY : src/commands/mobile/close_application_response.o
+
+# target to build an object file
+src/commands/mobile/close_application_response.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_response.cc.o
+.PHONY : src/commands/mobile/close_application_response.cc.o
+
+src/commands/mobile/close_application_response.i: src/commands/mobile/close_application_response.cc.i
+
+.PHONY : src/commands/mobile/close_application_response.i
+
+# target to preprocess a source file
+src/commands/mobile/close_application_response.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_response.cc.i
+.PHONY : src/commands/mobile/close_application_response.cc.i
+
+src/commands/mobile/close_application_response.s: src/commands/mobile/close_application_response.cc.s
+
+.PHONY : src/commands/mobile/close_application_response.s
+
+# target to generate assembly for a file
+src/commands/mobile/close_application_response.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/build.make src/components/application_manager/rpc_plugins/sdl_rpc_plugin/CMakeFiles/sdl_rpc_plugin.dir/src/commands/mobile/close_application_response.cc.s
+.PHONY : src/commands/mobile/close_application_response.cc.s
+
 src/commands/mobile/create_interaction_choice_set_request.o: src/commands/mobile/create_interaction_choice_set_request.cc.o
 
 .PHONY : src/commands/mobile/create_interaction_choice_set_request.o
@@ -9061,6 +9169,12 @@ help:
 	@echo "... src/commands/hmi/allow_app_response.o"
 	@echo "... src/commands/hmi/allow_app_response.i"
 	@echo "... src/commands/hmi/allow_app_response.s"
+	@echo "... src/commands/hmi/basic_communication_close_application_request.o"
+	@echo "... src/commands/hmi/basic_communication_close_application_request.i"
+	@echo "... src/commands/hmi/basic_communication_close_application_request.s"
+	@echo "... src/commands/hmi/basic_communication_close_application_response.o"
+	@echo "... src/commands/hmi/basic_communication_close_application_response.i"
+	@echo "... src/commands/hmi/basic_communication_close_application_response.s"
 	@echo "... src/commands/hmi/basic_communication_get_system_time_request.o"
 	@echo "... src/commands/hmi/basic_communication_get_system_time_request.i"
 	@echo "... src/commands/hmi/basic_communication_get_system_time_request.s"
@@ -9739,6 +9853,12 @@ help:
 	@echo "... src/commands/mobile/change_registration_response.o"
 	@echo "... src/commands/mobile/change_registration_response.i"
 	@echo "... src/commands/mobile/change_registration_response.s"
+	@echo "... src/commands/mobile/close_application_request.o"
+	@echo "... src/commands/mobile/close_application_request.i"
+	@echo "... src/commands/mobile/close_application_request.s"
+	@echo "... src/commands/mobile/close_application_response.o"
+	@echo "... src/commands/mobile/close_application_response.i"
+	@echo "... src/commands/mobile/close_application_response.s"
 	@echo "... src/commands/mobile/create_interaction_choice_set_request.o"
 	@echo "... src/commands/mobile/create_interaction_choice_set_request.i"
 	@echo "... src/commands/mobile/create_interaction_choice_set_request.s"

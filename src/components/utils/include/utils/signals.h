@@ -35,6 +35,8 @@
 
 #ifdef __QNXNTO__
 typedef void (*sighandler_t)(int);
+#elif defined(OS_DARWIN)
+typedef void (*sighandler_t)(int);
 #else
 #include <signal.h>
 #endif

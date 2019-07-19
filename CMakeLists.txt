@@ -36,6 +36,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tools/cmake/modu
 
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/platform.cmake)
 
+#ls /usr/local/Cellar/boost/1.69.0_2/include/boost/thread/
+include_directories(/usr/local/Cellar/openssl/1.0.2s/include)
+#include_directories(/usr/local/Cellar/boost/1.69.0_2/include/boost)
+
+#https://github.com/bitshares/bitshares-core/issues/1545
+
+
 #Jenkins integration section
 #dont modify this section if you dont know details about integration with Jenkins!!!
 set (HMI "web" CACHE STRING "HMI type")
@@ -236,8 +243,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
 set(ARCHIVE_OUTPUT_DIRECTORY ./bin)
 
-set(EXCLUDE_ERROR_FLAGS "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations")
-set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall -Werror ${EXCLUDE_ERROR_FLAGS} -Wuninitialized -Wvla")
+#set(EXCLUDE_ERROR_FLAGS "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations")
+#-Werror ${EXCLUDE_ERROR_FLAGS}
+set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall  -Wuninitialized -Wvla")
 
 if (USE_GOLD_LD)
   execute_process(COMMAND ld -v OUTPUT_VARIABLE result)
@@ -295,8 +303,27 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -s -O2")
 set(CMAKE_CXX_FLAGS_DEBUG   " -DDEBUG -g3 -ggdb3")
 
+
+#DOS_LINUX gives sigs undefined
+#/Users/russelljohnson/dev/sdl_core/src/components/utils/src/signals_posix.cc:65:25: error: use of undeclared identifier 'SIGRTMIN'
+#/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/signals.h:58:38: error: unknown type name 'sighandler_t'
+
+#DOS_QNX gives PidStats unkown.
+#/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/resource_usage.h:147:27: error: unknown type name 'PidStats'
+
+#Using Neither
+#PidStats unknown
+
+message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_definitions(-DOS_LINUX)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME} set as OS_LINUX)
+  add_definitions(-DOS_DARWIN)
+
+  #add_definitions(-DOS_LINUX)
+  #add_definitions(-DOS_QNX)
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   add_definitions(-DOS_QNX)
   SET(BUILD_BT_SUPPORT OFF)

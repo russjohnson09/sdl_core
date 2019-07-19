@@ -46,6 +46,8 @@ include_directories (
 
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
     include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/qnx")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/darwin")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/linux")
 endif ()

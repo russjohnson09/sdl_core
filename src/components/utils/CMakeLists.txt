@@ -117,12 +117,42 @@ endif()
 
 add_library("Utils" ${SOURCES})
 GET_PROPERTY(BOOST_LIBS_DIRECTORY GLOBAL PROPERTY GLOBAL_BOOST_LIBS)
-list(APPEND LIBRARIES boost_system -L${BOOST_LIBS_DIRECTORY})
-list(APPEND LIBRARIES boost_thread -L${BOOST_LIBS_DIRECTORY})
-list(APPEND LIBRARIES boost_date_time -L${BOOST_LIBS_DIRECTORY})
-list(APPEND LIBRARIES boost_filesystem -L${BOOST_LIBS_DIRECTORY})
-target_link_libraries("Utils" ${LIBRARIES})
-add_dependencies("Utils" Boost)
+
+#brew install boost
+#do we include libraries like this here for make?
+message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND LIBRARIES boost_system -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_thread -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_date_time -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_filesystem -L${BOOST_LIBS_DIRECTORY})
+    target_link_libraries("Utils" ${LIBRARIES})
+    #add_dependencies("Utils" Boost)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+    list(APPEND LIBRARIES boost_system -L${BOOST_LIBS_DIRECTORY})
+
+    #    list(APPEND LIBRARIES boost_thread -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_thread-mt -L${BOOST_LIBS_DIRECTORY})
+
+    list(APPEND LIBRARIES boost_date_time -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_filesystem -L${BOOST_LIBS_DIRECTORY})
+    target_link_libraries("Utils" ${LIBRARIES})
+    #add_dependencies("Utils" Boost)
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+#https://github.com/facebook/redex/issues/292
+    list(APPEND LIBRARIES boost_system -L${BOOST_LIBS_DIRECTORY})
+
+    list(APPEND LIBRARIES boost_thread -L${BOOST_LIBS_DIRECTORY})
+
+    list(APPEND LIBRARIES boost_date_time -L${BOOST_LIBS_DIRECTORY})
+    list(APPEND LIBRARIES boost_filesystem -L${BOOST_LIBS_DIRECTORY})
+    target_link_libraries("Utils" ${LIBRARIES})
+    #add_dependencies("Utils" Boost)
+endif()
+
+
 
 
 if(ENABLE_LOG)
