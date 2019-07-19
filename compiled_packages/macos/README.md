@@ -142,5 +142,36 @@ brew remove log4cxx
 rerun cmake?
 
 
+deleted the currently made stuff as well.
+
+
+
+
 /Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:40:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+
+
+
+set(LOG4CXX_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../apache-log4cxx-0.10.0)
+set(LOG4CXX_BUILD_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../apache-log4cxx-build)
+
+set(LOG4CXX_SOURCE_INCLUDE_DIRECTORY ${LOG4CXX_SOURCE_DIRECTORY}/src/main/include)
+set(LOG4CXX_BUILD_INCLUDE_DIRECTORY ${LOG4CXX_BUILD_DIRECTORY}/src/main/include)
+
+
+does this work correctly?
+I am not in exactly the same place as they expect maybe?
+
+
+#make build directory
+
+
+cmake ./../sdl_core
+
+
+
+#openssl not found
+cd /usr/local/include 
+ln -s ../opt/openssl/include/openssl .
+
+cmake ../../ -DOPENSSL_INCLUDE_DIR=/usr/bin/openssl 
 

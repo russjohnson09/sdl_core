@@ -52,7 +52,10 @@ option(BUILD_CLOUD_APP_SUPPORT "Cloud App Transport Support" OFF)
 option(BUILD_BACKTRACE_SUPPORT "backtrace support" OFF)
 option(BUILD_TESTS "Possibility to build and run tests" OFF)
 option(TELEMETRY_MONITOR "Enable profiling time test util" OFF)
-option(ENABLE_LOG "Logging feature" ON)
+
+##TODO enabled logging
+#/Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:40:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+option(ENABLE_LOG "Logging feature" OFF)
 option(ENABLE_GCOV "gcov code coverage feature" OFF)
 option(ENABLE_SANITIZE "Sanitize tool" OFF)
 option(ENABLE_SECURITY "Security Ford protocol protection" OFF)

@@ -1,4 +1,0 @@
-/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/tools/intergen/lib/libpugixml.a
-/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/tools/intergen/include/pugixml.hpp
-/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/tools/intergen/include/pugiconfig.hpp
-/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/tools/intergen/bin/intergen

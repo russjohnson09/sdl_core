@@ -102,17 +102,6 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/Cellar/cmake/3.15.0/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -123,6 +112,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/local/Cellar/cmake/3.15.0/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -157,19 +157,19 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/3rd_party/CMakeFiles/3rd_party_logger.dir/rule:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f CMakeFiles/Makefile2 src/3rd_party/CMakeFiles/3rd_party_logger.dir/rule
-.PHONY : src/3rd_party/CMakeFiles/3rd_party_logger.dir/rule
+src/3rd_party/CMakeFiles/Boost.dir/rule:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f CMakeFiles/Makefile2 src/3rd_party/CMakeFiles/Boost.dir/rule
+.PHONY : src/3rd_party/CMakeFiles/Boost.dir/rule
 
 # Convenience name for target.
-3rd_party_logger: src/3rd_party/CMakeFiles/3rd_party_logger.dir/rule
+Boost: src/3rd_party/CMakeFiles/Boost.dir/rule
 
-.PHONY : 3rd_party_logger
+.PHONY : Boost
 
 # fast build rule for target.
-3rd_party_logger/fast:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/3rd_party/CMakeFiles/3rd_party_logger.dir/build.make src/3rd_party/CMakeFiles/3rd_party_logger.dir/build
-.PHONY : 3rd_party_logger/fast
+Boost/fast:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/3rd_party/CMakeFiles/Boost.dir/build.make src/3rd_party/CMakeFiles/Boost.dir/build
+.PHONY : Boost/fast
 
 # Convenience name for target.
 src/3rd_party/CMakeFiles/install-3rd_party.dir/rule:
@@ -187,21 +187,6 @@ install-3rd_party/fast:
 .PHONY : install-3rd_party/fast
 
 # Convenience name for target.
-src/3rd_party/CMakeFiles/Boost.dir/rule:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f CMakeFiles/Makefile2 src/3rd_party/CMakeFiles/Boost.dir/rule
-.PHONY : src/3rd_party/CMakeFiles/Boost.dir/rule
-
-# Convenience name for target.
-Boost: src/3rd_party/CMakeFiles/Boost.dir/rule
-
-.PHONY : Boost
-
-# fast build rule for target.
-Boost/fast:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/3rd_party/CMakeFiles/Boost.dir/build.make src/3rd_party/CMakeFiles/Boost.dir/build
-.PHONY : Boost/fast
-
-# Convenience name for target.
 src/3rd_party/CMakeFiles/libbson.dir/rule:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f CMakeFiles/Makefile2 src/3rd_party/CMakeFiles/libbson.dir/rule
 .PHONY : src/3rd_party/CMakeFiles/libbson.dir/rule
@@ -216,21 +201,6 @@ libbson/fast:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/3rd_party/CMakeFiles/libbson.dir/build.make src/3rd_party/CMakeFiles/libbson.dir/build
 .PHONY : libbson/fast
 
-# Convenience name for target.
-src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/rule:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f CMakeFiles/Makefile2 src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/rule
-.PHONY : src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/rule
-
-# Convenience name for target.
-install-3rd_party_logger: src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/rule
-
-.PHONY : install-3rd_party_logger
-
-# fast build rule for target.
-install-3rd_party_logger/fast:
-	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/build.make src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/build
-.PHONY : install-3rd_party_logger/fast
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -241,13 +211,11 @@ help:
 	@echo "... install/strip"
 	@echo "... install"
 	@echo "... list_install_components"
-	@echo "... edit_cache"
-	@echo "... 3rd_party_logger"
-	@echo "... install-3rd_party"
-	@echo "... rebuild_cache"
 	@echo "... Boost"
+	@echo "... rebuild_cache"
+	@echo "... edit_cache"
+	@echo "... install-3rd_party"
 	@echo "... libbson"
-	@echo "... install-3rd_party_logger"
 .PHONY : help
 
 

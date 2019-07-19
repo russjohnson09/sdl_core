@@ -127,10 +127,7 @@ log4cxx_time_t time_now();
                         << ")")
 
 #define LOG4CXX_WARN_WITH_ERRNO(loggerPtr, message)                           \
-  LOG4CXX_WARN(loggerPtr,                                                     \
-               message << ", error code " << errno << " (" << strerror(errno) \
-                       << ")")
-
+  LOG4CXX_WARN(loggerPtr,
 #else  // ENABLE_LOG is OFF
 
 #define CREATE_LOGGERPTR_GLOBAL(logger_var, logger_name)
@@ -173,4 +170,7 @@ log4cxx_time_t time_now();
 #define LOG4CXX_FATAL(x, y)
 #endif  // ENABLE_LOG
 
-#endif  // SRC_COMPONENTS_INCLUDE_UTILS_LOGGER_H_
+#endif  // SRC_COMPONENTS_INCLUDE_UTILS_LOGGER_H_                                 \
+               message << ", error code " << errno << " (" << strerror(errno) \
+                       << ")")
+
