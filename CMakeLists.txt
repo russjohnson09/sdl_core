@@ -37,480 +37,489 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tools/cmake/modu
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/platform.cmake)
 
 #ls /usr/local/Cellar/boost/1.69.0_2/include/boost/thread/
+
 include_directories(/usr/local/Cellar/openssl/1.0.2s/include)
+
+
+#TODO why is this not included on mac?
+#include_directories(${CMAKE_SOURCE_DIR}/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx)
+#/Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:38:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+
+
+#set(LOG4CXX_DIR ${CMAKE_SOURCE_DIR}/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx)
+#include_directories(${CMAKE_SOURCE_DIR}/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx)
+#find_package(LOG4CXX REQUIRED)
+
+
 #include_directories(/usr/local/Cellar/boost/1.69.0_2/include/boost)
+
+
+#sdl_core/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx
+
 
 #https://github.com/bitshares/bitshares-core/issues/1545
 
+if (1)
+    #Jenkins integration section
+    #dont modify this section if you dont know details about integration with Jenkins!!!
+    set (HMI "web" CACHE STRING "HMI type")
+    option(EXTENDED_MEDIA_MODE "Turn on and off extended Madia Manager features relates to PulseAudio A2DP and GStreamer" OFF)
+    option(BUILD_SHARED_LIBS "Build all libraries as shared (if ON) or static (if OFF)" OFF)
+    option(BUILD_BT_SUPPORT "Bluetooth support" OFF)
+    option(BUILD_USB_SUPPORT "libusb support" OFF)
+    option(BUILD_CLOUD_APP_SUPPORT "Cloud App Transport Support" OFF)
+    option(BUILD_BACKTRACE_SUPPORT "backtrace support" OFF)
+    option(BUILD_TESTS "Possibility to build and run tests" OFF)
+    option(TELEMETRY_MONITOR "Enable profiling time test util" OFF)
 
-#Jenkins integration section
-#dont modify this section if you dont know details about integration with Jenkins!!!
-set (HMI "web" CACHE STRING "HMI type")
-option(EXTENDED_MEDIA_MODE "Turn on and off extended Madia Manager features relates to PulseAudio A2DP and GStreamer" OFF)
-option(BUILD_SHARED_LIBS "Build all libraries as shared (if ON) or static (if OFF)" OFF)
-option(BUILD_BT_SUPPORT "Bluetooth support" OFF)
-option(BUILD_USB_SUPPORT "libusb support" OFF)
-option(BUILD_CLOUD_APP_SUPPORT "Cloud App Transport Support" OFF)
-option(BUILD_BACKTRACE_SUPPORT "backtrace support" OFF)
-option(BUILD_TESTS "Possibility to build and run tests" OFF)
-option(TELEMETRY_MONITOR "Enable profiling time test util" OFF)
-option(ENABLE_LOG "Logging feature" ON)
-option(ENABLE_GCOV "gcov code coverage feature" OFF)
-option(ENABLE_SANITIZE "Sanitize tool" OFF)
-option(ENABLE_SECURITY "Security Ford protocol protection" OFF)
-option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" OFF)
-option(USE_COTIRE "Use Cotire to speed up build (currently only for commands tests)" OFF)
-option(USE_GOLD_LD "Use gold linker intead of GNU linker" ON)
-option(USE_CCACHE "Turn on ccache usage" ON)
-option(USE_DISTCC "Turn on distributed build_usage" OFF)
+#https://logging.apache.org/log4cxx/latest_stable/building/xcode.html
+#/Users/russelljohnson/dev/sdl_core/src/components/include/utils/logger.h:38:10: fatal error: 'log4cxx/propertyconfigurator.h' file not found
+    option(ENABLE_LOG "Logging feature" OFF)
 
-set (EXTENDED_POLICY "PROPRIETARY" CACHE STRING "Policy mode (PROPRIETARY, HTTP or EXTERNAL_PROPRIETARY)")
-set_property(CACHE EXTENDED_POLICY PROPERTY STRINGS PROPRIETARY HTTP EXTERNAL_PROPRIETARY)
-if(EXTENDED_POLICY STREQUAL "")
-  set(EXTENDED_POLICY "PROPRIETARY")
-endif()
+    option(ENABLE_GCOV "gcov code coverage feature" OFF)
+    option(ENABLE_SANITIZE "Sanitize tool" OFF)
+    option(ENABLE_SECURITY "Security Ford protocol protection" OFF)
+    option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" OFF)
+    option(USE_COTIRE "Use Cotire to speed up build (currently only for commands tests)" OFF)
+    option(USE_GOLD_LD "Use gold linker intead of GNU linker" OFF)
+    option(USE_CCACHE "Turn on ccache usage" OFF)
+    option(USE_DISTCC "Turn on distributed build_usage" OFF)
 
-set(OS_TYPE_OPTION 	"$ENV{OS_TYPE}")
-set(HMI_TYPE_OPTION 	"$ENV{HMI_TYPE}")
-set(TARGET_OPTION 	"$ENV{TARGET}")
-set(MEDIA_MODE_OPTION 	"$ENV{MEDIA_MODE}")
-set(HMI_ADAPTER_OPTION 	"$ENV{HMI_ADAPTER}")
-set(ENABLE_TESTS_OPTION "$ENV{ENABLE_TESTS}")
-set(ENABLE_LOG_OPTION 	"$ENV{ENABLE_LOG}")
-set(ARCH_TYPE_OPTION	"$ENV{ARCH_TYPE}")
-set(POLICY_OPTION 	"$ENV{POLICY_TYPE}")
-set(SECURITY_OPTION 	"$ENV{SECURITY_MODE}")
-set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
-set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
-set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
-set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
-set(BUILDDIR "$ENV{BUILDDIR}")
+    set (EXTENDED_POLICY "PROPRIETARY" CACHE STRING "Policy mode (PROPRIETARY, HTTP or EXTERNAL_PROPRIETARY)")
+    set_property(CACHE EXTENDED_POLICY PROPERTY STRINGS PROPRIETARY HTTP EXTERNAL_PROPRIETARY)
+    if(EXTENDED_POLICY STREQUAL "")
+      set(EXTENDED_POLICY "PROPRIETARY")
+    endif()
 
-if (ARCH_TYPE_OPTION)
-  if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
-    message(AUTHOR_WARNING "HW architecture is not defined, using x86. Allowed values are x86/armv7 (case sensitive)")
-    set(ARCH_TYPE_OPTION	"x86")
-  endif ()
-else ()
-    set(ARCH_TYPE_OPTION	"x86")
-endif()
+    set(OS_TYPE_OPTION 	"$ENV{OS_TYPE}")
+    set(HMI_TYPE_OPTION 	"$ENV{HMI_TYPE}")
+    set(TARGET_OPTION 	"$ENV{TARGET}")
+    set(MEDIA_MODE_OPTION 	"$ENV{MEDIA_MODE}")
+    set(HMI_ADAPTER_OPTION 	"$ENV{HMI_ADAPTER}")
+    set(ENABLE_TESTS_OPTION "$ENV{ENABLE_TESTS}")
+    set(ENABLE_LOG_OPTION 	"$ENV{ENABLE_LOG}")
+    set(ARCH_TYPE_OPTION	"$ENV{ARCH_TYPE}")
+    set(POLICY_OPTION 	"$ENV{POLICY_TYPE}")
+    set(SECURITY_OPTION 	"$ENV{SECURITY_MODE}")
+    set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
+    set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
+    set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
+    set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
+    set(BUILDDIR "$ENV{BUILDDIR}")
 
-if (HMI_TYPE_OPTION)
-  if (${HMI_TYPE_OPTION} STREQUAL "NONE")
-    message(STATUS "Jenkins integration: select HMI none")
-    set (HMI "no")
-  else ()
-    message(STATUS "Jenkins integration: select HTML5 HMI")
-    set (HMI "web")
-  endif()
-endif()
+    if (ARCH_TYPE_OPTION)
+      if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
+        message(AUTHOR_WARNING "HW architecture is not defined, using x86. Allowed values are x86/armv7 (case sensitive)")
+        set(ARCH_TYPE_OPTION	"x86")
+      endif ()
+    else ()
+        set(ARCH_TYPE_OPTION	"x86")
+    endif()
 
-if (MEDIA_MODE_OPTION)
-  if (${MEDIA_MODE_OPTION} STREQUAL "EXTENDED_MEDIA")
-    message(STATUS "Jenkins integration: select extended media mode")
-    set (EXTENDED_MEDIA_MODE ON)
-  endif()
-endif()
+    if (HMI_TYPE_OPTION)
+      if (${HMI_TYPE_OPTION} STREQUAL "NONE")
+        message(STATUS "Jenkins integration: select HMI none")
+        set (HMI "no")
+      else ()
+        message(STATUS "Jenkins integration: select HTML5 HMI")
+        set (HMI "web")
+      endif()
+    endif()
 
-if( NOT CMAKE_BUILD_TYPE )
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build. Options are: None, Debug, Release, RelWithDebInfo, MinSizeRel." FORCE)
-endif()
+    if (MEDIA_MODE_OPTION)
+      if (${MEDIA_MODE_OPTION} STREQUAL "EXTENDED_MEDIA")
+        message(STATUS "Jenkins integration: select extended media mode")
+        set (EXTENDED_MEDIA_MODE ON)
+      endif()
+    endif()
 
-if (HMI_ADAPTER_OPTION)
-  if (${HMI_ADAPTER_OPTION} STREQUAL "MESSAGEBROKER")
-    message(STATUS "Jenkins integration: selected HMI adapter MESSAGEBROKER")
-    set (HMIADAPTER "messagebroker")
-  endif()
-endif()
+    if( NOT CMAKE_BUILD_TYPE )
+      set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build. Options are: None, Debug, Release, RelWithDebInfo, MinSizeRel." FORCE)
+    endif()
 
-if (ENABLE_LOG_OPTION)
-  if (${ENABLE_LOG_OPTION} STREQUAL "LOG_OFF")
-    message(STATUS "Jenkins integration: Log is turned off")
-    set (ENABLE_LOG OFF)
-  endif()
-endif()
+    if (HMI_ADAPTER_OPTION)
+      if (${HMI_ADAPTER_OPTION} STREQUAL "MESSAGEBROKER")
+        message(STATUS "Jenkins integration: selected HMI adapter MESSAGEBROKER")
+        set (HMIADAPTER "messagebroker")
+      endif()
+    endif()
 
-if (ENABLE_TESTS_OPTION)
-  if (${ENABLE_TESTS_OPTION} STREQUAL "TESTS_OFF")
-    message(STATUS "Jenkins integration: Unit tests is turned off")
-    set (BUILD_TESTS OFF)
-  elseif(${ENABLE_TESTS_OPTION} STREQUAL "TESTS_ON")
-    message(STATUS "Jenkins integration: Unit tests is turned on")
-    set (BUILD_TESTS ON)
-  endif()
-endif()
+    if (ENABLE_LOG_OPTION)
+      if (${ENABLE_LOG_OPTION} STREQUAL "LOG_OFF")
+        message(STATUS "Jenkins integration: Log is turned off")
+        set (ENABLE_LOG OFF)
+      endif()
+    endif()
 
-if (SECURITY_OPTION)
-  if (${SECURITY_OPTION} STREQUAL "SEC_OFF")
-    message(STATUS "Jenkins integration: Security is turned OFF")
-    set (ENABLE_SECURITY OFF)
-  endif()
-endif()
+    if (ENABLE_TESTS_OPTION)
+      if (${ENABLE_TESTS_OPTION} STREQUAL "TESTS_OFF")
+        message(STATUS "Jenkins integration: Unit tests is turned off")
+        set (BUILD_TESTS OFF)
+      elseif(${ENABLE_TESTS_OPTION} STREQUAL "TESTS_ON")
+        message(STATUS "Jenkins integration: Unit tests is turned on")
+        set (BUILD_TESTS ON)
+      endif()
+    endif()
 
-set(objcopy "objcopy")
-if (OS_TYPE_OPTION)
-  if (${OS_TYPE_OPTION} STREQUAL "QNX")
-    message(STATUS "Jenkins integration: set build process for QNX")
-    #do not use include after project() command.
-    #Such usecase results in infinite cycle of reinitialization of compiler and other variables
-    INCLUDE("./qnx_6.5.0_linux_x86.cmake")
-    set(objcopy "nto${ARCH_TYPE_OPTION}-objcopy")
-    #tests are not supported yet for QNX build
-    set (BUILD_TESTS OFF)
-  endif()
-endif()
+    if (SECURITY_OPTION)
+      if (${SECURITY_OPTION} STREQUAL "SEC_OFF")
+        message(STATUS "Jenkins integration: Security is turned OFF")
+        set (ENABLE_SECURITY OFF)
+      endif()
+    endif()
 
-#Jenkins integration section end
+    set(objcopy "objcopy")
+    if (OS_TYPE_OPTION)
+      if (${OS_TYPE_OPTION} STREQUAL "QNX")
+        message(STATUS "Jenkins integration: set build process for QNX")
+        #do not use include after project() command.
+        #Such usecase results in infinite cycle of reinitialization of compiler and other variables
+        INCLUDE("./qnx_6.5.0_linux_x86.cmake")
+        set(objcopy "nto${ARCH_TYPE_OPTION}-objcopy")
+        #tests are not supported yet for QNX build
+        set (BUILD_TESTS OFF)
+      endif()
+    endif()
 
-#Deliver Build Configuration
+    #Jenkins integration section end
 
-set(build_config_path "src/appMain/build_config.txt")
-FILE(WRITE "${build_config_path}" "")
+    #Deliver Build Configuration
 
-get_property(cHelpString CACHE EXTENDED_POLICY PROPERTY HELPSTRING)
-get_property(cType CACHE EXTENDED_POLICY PROPERTY TYPE)
-get_property(cValue CACHE EXTENDED_POLICY PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "EXTENDED_POLICY:${cType}=${cValue}\n\n")
+    set(build_config_path "src/appMain/build_config.txt")
+    FILE(WRITE "${build_config_path}" "")
 
-get_property(cHelpString CACHE BUILD_BT_SUPPORT PROPERTY HELPSTRING)
-get_property(cType CACHE BUILD_BT_SUPPORT PROPERTY TYPE)
-get_property(cValue CACHE BUILD_BT_SUPPORT PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "BUILD_BT_SUPPORT:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE EXTENDED_POLICY PROPERTY HELPSTRING)
+    get_property(cType CACHE EXTENDED_POLICY PROPERTY TYPE)
+    get_property(cValue CACHE EXTENDED_POLICY PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "EXTENDED_POLICY:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE BUILD_USB_SUPPORT PROPERTY HELPSTRING)
-get_property(cType CACHE BUILD_USB_SUPPORT PROPERTY TYPE)
-get_property(cValue CACHE BUILD_USB_SUPPORT PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "BUILD_USB_SUPPORT:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE BUILD_BT_SUPPORT PROPERTY HELPSTRING)
+    get_property(cType CACHE BUILD_BT_SUPPORT PROPERTY TYPE)
+    get_property(cValue CACHE BUILD_BT_SUPPORT PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "BUILD_BT_SUPPORT:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE ENABLE_SECURITY PROPERTY HELPSTRING)
-get_property(cType CACHE ENABLE_SECURITY PROPERTY TYPE)
-get_property(cValue CACHE ENABLE_SECURITY PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "ENABLE_SECURITY:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE BUILD_USB_SUPPORT PROPERTY HELPSTRING)
+    get_property(cType CACHE BUILD_USB_SUPPORT PROPERTY TYPE)
+    get_property(cValue CACHE BUILD_USB_SUPPORT PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "BUILD_USB_SUPPORT:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE EXTENDED_MEDIA_MODE PROPERTY HELPSTRING)
-get_property(cType CACHE EXTENDED_MEDIA_MODE PROPERTY TYPE)
-get_property(cValue CACHE EXTENDED_MEDIA_MODE PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "EXTENDED_MEDIA_MODE:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE ENABLE_SECURITY PROPERTY HELPSTRING)
+    get_property(cType CACHE ENABLE_SECURITY PROPERTY TYPE)
+    get_property(cValue CACHE ENABLE_SECURITY PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "ENABLE_SECURITY:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE TELEMETRY_MONITOR PROPERTY HELPSTRING)
-get_property(cType CACHE TELEMETRY_MONITOR PROPERTY TYPE)
-get_property(cValue CACHE TELEMETRY_MONITOR PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "TELEMETRY_MONITOR:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE EXTENDED_MEDIA_MODE PROPERTY HELPSTRING)
+    get_property(cType CACHE EXTENDED_MEDIA_MODE PROPERTY TYPE)
+    get_property(cValue CACHE EXTENDED_MEDIA_MODE PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "EXTENDED_MEDIA_MODE:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE HMI PROPERTY HELPSTRING)
-get_property(cType CACHE HMI PROPERTY TYPE)
-get_property(cValue CACHE HMI PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "HMI:${cType}=${cValue}\n\n")
+    get_property(cHelpString CACHE TELEMETRY_MONITOR PROPERTY HELPSTRING)
+    get_property(cType CACHE TELEMETRY_MONITOR PROPERTY TYPE)
+    get_property(cValue CACHE TELEMETRY_MONITOR PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "TELEMETRY_MONITOR:${cType}=${cValue}\n\n")
 
-get_property(cHelpString CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY HELPSTRING)
-get_property(cType CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY TYPE)
-get_property(cValue CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY VALUE)
-file(APPEND "${build_config_path}" "//${cHelpString}\n")
-file(APPEND "${build_config_path}" "ENABLE_HMI_PTU_DECRYPTION:${cType}=${cValue}\n")
+    get_property(cHelpString CACHE HMI PROPERTY HELPSTRING)
+    get_property(cType CACHE HMI PROPERTY TYPE)
+    get_property(cValue CACHE HMI PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "HMI:${cType}=${cValue}\n\n")
 
-add_custom_target(pasa-tarball
-  COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} pasa
-  COMMAND tar -cz -C /tmp/PASA -f ${CMAKE_BINARY_DIR}/pasa.tar.gz .
-  DEPENDS HMI_API MOBILE_API v4_protocol_v1_2_no_extra
-)
+    get_property(cHelpString CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY HELPSTRING)
+    get_property(cType CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY TYPE)
+    get_property(cValue CACHE ENABLE_HMI_PTU_DECRYPTION PROPERTY VALUE)
+    file(APPEND "${build_config_path}" "//${cHelpString}\n")
+    file(APPEND "${build_config_path}" "ENABLE_HMI_PTU_DECRYPTION:${cType}=${cValue}\n")
 
-add_custom_target(ford-tarball
-  COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ford
-  COMMAND tar -cz -C /tmp/FORD -f ${CMAKE_BINARY_DIR}/ford.tar.gz .
-  DEPENDS HMI_API MOBILE_API v4_protocol_v1_2_no_extra
-)
+    add_custom_target(pasa-tarball
+      COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} pasa
+      COMMAND tar -cz -C /tmp/PASA -f ${CMAKE_BINARY_DIR}/pasa.tar.gz .
+      DEPENDS HMI_API MOBILE_API v4_protocol_v1_2_no_extra
+    )
 
-add_custom_target(genivi-tarball
-  COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} genivi
-  COMMAND tar -cz -C /tmp/GENIVI -f ${CMAKE_BINARY_DIR}/genivi.tar.gz .
-)
+    add_custom_target(ford-tarball
+      COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ford
+      COMMAND tar -cz -C /tmp/FORD -f ${CMAKE_BINARY_DIR}/ford.tar.gz .
+      DEPENDS HMI_API MOBILE_API v4_protocol_v1_2_no_extra
+    )
 
-project (${PROJECT})
+    add_custom_target(genivi-tarball
+      COMMAND ${CMAKE_SOURCE_DIR}/tools/Utils/export-customer-specific.sh ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} genivi
+      COMMAND tar -cz -C /tmp/GENIVI -f ${CMAKE_BINARY_DIR}/genivi.tar.gz .
+    )
 
-#ADD_DEPENDENCIES(${PROJECT} Policy)
+    project (${PROJECT})
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+    #ADD_DEPENDENCIES(${PROJECT} Policy)
 
-# Please do not change compiler/linker flags if You do not know how particular
-# flag is handled by CMake
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
-set(ARCHIVE_OUTPUT_DIRECTORY ./bin)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-#set(EXCLUDE_ERROR_FLAGS "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations")
-#-Werror ${EXCLUDE_ERROR_FLAGS}
-set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall  -Wuninitialized -Wvla")
+    # Please do not change compiler/linker flags if You do not know how particular
+    # flag is handled by CMake
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
+    set(ARCHIVE_OUTPUT_DIRECTORY ./bin)
 
-if (USE_GOLD_LD)
-  execute_process(COMMAND ld -v OUTPUT_VARIABLE result)
-  string(FIND ${result} Binutils GOLD_LD_FOUND)
-  if (GOLD_LD_FOUND EQUAL -1)
-    message(SEND_ERROR "Gold linker not found!")
-  else()
-    message(INFO " Use gold linker")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
-  endif()
-endif(USE_GOLD_LD)
-
-if (USE_CCACHE)
-# Configure CCache if available
-  find_program(CCACHE_FOUND ccache)
-  if(CCACHE_FOUND)
-    get_property(RULE_LAUNCH_COMPILE GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
-    set(RULE_LAUNCH_COMPILE "${RULE_LAUNCH_COMPILE} ccache")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${RULE_LAUNCH_COMPILE})
-
-    get_property(RULE_LAUNCH_LINK GLOBAL PROPERTY RULE_LAUNCH_LINK)
-    set(RULE_LAUNCH_LINK "${RULE_LAUNCH_LINK} ccache")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${RULE_LAUNCH_LINK})
-
-    message(INFO " Used CCache for compilation.")
-  else(CCACHE_FOUND)
-    message(WARNING " CCache was not found.")
-  endif(CCACHE_FOUND)
-endif(USE_CCACHE)
-
-if (USE_DISTCC)
-# Configure distributed compilation if available
-  find_program(DISTCC_FOUND distcc)
-  if(DISTCC_FOUND)
-    get_property(RULE_LAUNCH_COMPILE GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
-    set(RULE_LAUNCH_COMPILE "${RULE_LAUNCH_COMPILE} distcc")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${RULE_LAUNCH_COMPILE})
-    message(INFO " Used distributed build.")
-  else(CCACHE_FOUND)
-    message(WARNING " distcc was not found. Distributed compilation is impossible.")
-  endif(DISTCC_FOUND)
-endif(USE_DISTCC)
-
-if(ENABLE_SANITIZE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-  message(STATUS "Sanitizing enabled")
-endif()
-
-if(ENABLE_GCOV)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-  add_definitions(-DGCOV_ENABLED)
-  message(STATUS "GCOV enabled")
-endif()
-
-set(CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -s -O2")
-set(CMAKE_CXX_FLAGS_DEBUG   " -DDEBUG -g3 -ggdb3")
+    #set(EXCLUDE_ERROR_FLAGS "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations")
+    #-Werror ${EXCLUDE_ERROR_FLAGS}
+    set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall  -Wuninitialized -Wvla")
 
 
-#DOS_LINUX gives sigs undefined
-#/Users/russelljohnson/dev/sdl_core/src/components/utils/src/signals_posix.cc:65:25: error: use of undeclared identifier 'SIGRTMIN'
-#/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/signals.h:58:38: error: unknown type name 'sighandler_t'
+    if (USE_DISTCC)
+    # Configure distributed compilation if available
+      find_program(DISTCC_FOUND distcc)
+      if(DISTCC_FOUND)
+        get_property(RULE_LAUNCH_COMPILE GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
+        set(RULE_LAUNCH_COMPILE "${RULE_LAUNCH_COMPILE} distcc")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${RULE_LAUNCH_COMPILE})
+        message(INFO " Used distributed build.")
+      else(CCACHE_FOUND)
+        message(WARNING " distcc was not found. Distributed compilation is impossible.")
+      endif(DISTCC_FOUND)
+    endif(USE_DISTCC)
 
-#DOS_QNX gives PidStats unkown.
-#/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/resource_usage.h:147:27: error: unknown type name 'PidStats'
+    if(ENABLE_SANITIZE)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+      message(STATUS "Sanitizing enabled")
+    endif()
 
-#Using Neither
-#PidStats unknown
+    if(ENABLE_GCOV)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+      add_definitions(-DGCOV_ENABLED)
+      message(STATUS "GCOV enabled")
+    endif()
 
-message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  add_definitions(-DOS_LINUX)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME} set as OS_LINUX)
-  add_definitions(-DOS_DARWIN)
+    set(CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -s -O2")
+    set(CMAKE_CXX_FLAGS_DEBUG   " -DDEBUG -g3 -ggdb3")
 
-  #add_definitions(-DOS_LINUX)
-  #add_definitions(-DOS_QNX)
 
-elseif(CMAKE_SYSTEM_NAME STREQUAL "QNX")
-  add_definitions(-DOS_QNX)
-  SET(BUILD_BT_SUPPORT OFF)
-  SET(BUILD_BACKTRACE_SUPPORT OFF)
-  SET(EXTENDED_MEDIA_MODE OFF)
+    #DOS_LINUX gives sigs undefined
+    #/Users/russelljohnson/dev/sdl_core/src/components/utils/src/signals_posix.cc:65:25: error: use of undeclared identifier 'SIGRTMIN'
+    #/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/signals.h:58:38: error: unknown type name 'sighandler_t'
+
+    #DOS_QNX gives PidStats unkown.
+    #/Users/russelljohnson/dev/sdl_core/src/components/utils/include/utils/resource_usage.h:147:27: error: unknown type name 'PidStats'
+
+    #Using Neither
+    #PidStats unknown
+
 endif()
 
 
-if (BUILD_USB_SUPPORT)
-  add_definitions(-DUSB_SUPPORT)
-  find_package(UDev REQUIRED)
-  message(STATUS "USB support enabled")
-endif()
+
+if (1)
+
+    message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      add_definitions(-DOS_LINUX)
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+      message(CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME} set as OS_LINUX)
+      add_definitions(-DOS_DARWIN)
+
+      #add_definitions(-DOS_LINUX)
+      #add_definitions(-DOS_QNX)
+
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+      add_definitions(-DOS_QNX)
+      SET(BUILD_BT_SUPPORT OFF)
+      SET(BUILD_BACKTRACE_SUPPORT OFF)
+      SET(EXTENDED_MEDIA_MODE OFF)
+    endif()
 
 
-if (BUILD_BT_SUPPORT)
-  add_definitions(-DBLUETOOTH_SUPPORT)
-  message(STATUS "Bluetooth support enabled")
-endif()
+    if (BUILD_USB_SUPPORT)
+      add_definitions(-DUSB_SUPPORT)
+      find_package(UDev REQUIRED)
+      message(STATUS "USB support enabled")
+    endif()
 
-if (BUILD_CLOUD_APP_SUPPORT)
-  add_definitions(-DCLOUD_APP_WEBSOCKET_TRANSPORT_SUPPORT)
-  message(STATUS "Cloud app websocket support enabled")
-endif()
 
-if (BUILD_BACKTRACE_SUPPORT)
-  add_definitions(-DBACKTRACE_SUPPORT)
-  message(STATUS "Backtrace support enabled")
-endif()
+    if (BUILD_BT_SUPPORT)
+      add_definitions(-DBLUETOOTH_SUPPORT)
+      message(STATUS "Bluetooth support enabled")
+    endif()
 
-if(ENABLE_LOG)
-  add_definitions(-DENABLE_LOG)
-  set(install-3rd_party_logger "install-3rd_party_logger")
-  message(STATUS "Logger enabled")
-endif()
+    if (BUILD_CLOUD_APP_SUPPORT)
+      add_definitions(-DCLOUD_APP_WEBSOCKET_TRANSPORT_SUPPORT)
+      message(STATUS "Cloud app websocket support enabled")
+    endif()
 
-set(install-bson_c_lib "install-bson_c_lib")
+    if (BUILD_BACKTRACE_SUPPORT)
+      add_definitions(-DBACKTRACE_SUPPORT)
+      message(STATUS "Backtrace support enabled")
+    endif()
 
-if (TELEMETRY_MONITOR)
-  add_definitions(-DTELEMETRY_MONITOR)
-  message(STATUS "Telemetry monitor enabled")
-endif()
+    if(ENABLE_LOG)
+      add_definitions(-DENABLE_LOG)
+      set(install-3rd_party_logger "install-3rd_party_logger")
+      message(STATUS "Logger enabled")
+    endif()
 
-if (${EXTENDED_POLICY} STREQUAL "EXTERNAL_PROPRIETARY")
-    add_definitions(-DEXTERNAL_PROPRIETARY_MODE)
-    set(POLICY_PATH ${COMPONENTS_DIR}/policy/policy_external/)
-    set(POLICY_GLOBAL_INCLUDE_PATH ${COMPONENTS_DIR}/include/policy/policy_external/)
-    set(POLICY_MOCK_INCLUDE_PATH ${COMPONENTS_DIR}/include/test/policy/policy_external/)
-    message(STATUS "EXTERNAL_PROPRIETARY policy enabled")
-else()
-   if (${EXTENDED_POLICY} STREQUAL "PROPRIETARY")
-     add_definitions(-DPROPRIETARY_MODE)
-     message(STATUS "PROPRIETARY policy enabled")
-   else()
-     message(STATUS "HTTP policy enabled")
-   endif()
-   set(POLICY_PATH ${COMPONENTS_DIR}/policy/policy_regular/)
-   set(POLICY_GLOBAL_INCLUDE_PATH ${COMPONENTS_DIR}/include/policy/policy_regular/)
-   set(POLICY_MOCK_INCLUDE_PATH ${COMPONENTS_DIR}/include/test/policy/policy_regular/)
-endif()
+    set(install-bson_c_lib "install-bson_c_lib")
 
-# TODO(AK): check current OS here
-add_definitions(-DOS_POSIX)
+    if (TELEMETRY_MONITOR)
+      add_definitions(-DTELEMETRY_MONITOR)
+      message(STATUS "Telemetry monitor enabled")
+    endif()
 
-if (EXTENDED_MEDIA_MODE)
-  add_definitions(-DEXTENDED_MEDIA_MODE)
-  message(STATUS "Extended media mode enabled")
-  # required to find 'glibconfig.h'
-  find_package(PkgConfig)
-  pkg_check_modules(GLIB2 REQUIRED glib-2.0)
-  add_definitions(${GLIB2_CFLAGS})
+    if (${EXTENDED_POLICY} STREQUAL "EXTERNAL_PROPRIETARY")
+        add_definitions(-DEXTERNAL_PROPRIETARY_MODE)
+        set(POLICY_PATH ${COMPONENTS_DIR}/policy/policy_external/)
+        set(POLICY_GLOBAL_INCLUDE_PATH ${COMPONENTS_DIR}/include/policy/policy_external/)
+        set(POLICY_MOCK_INCLUDE_PATH ${COMPONENTS_DIR}/include/test/policy/policy_external/)
+        message(STATUS "EXTERNAL_PROPRIETARY policy enabled")
+    else()
+       if (${EXTENDED_POLICY} STREQUAL "PROPRIETARY")
+         add_definitions(-DPROPRIETARY_MODE)
+         message(STATUS "PROPRIETARY policy enabled")
+       else()
+         message(STATUS "HTTP policy enabled")
+       endif()
+       set(POLICY_PATH ${COMPONENTS_DIR}/policy/policy_regular/)
+       set(POLICY_GLOBAL_INCLUDE_PATH ${COMPONENTS_DIR}/include/policy/policy_regular/)
+       set(POLICY_MOCK_INCLUDE_PATH ${COMPONENTS_DIR}/include/test/policy/policy_regular/)
+    endif()
+
+    # TODO(AK): check current OS here
+    add_definitions(-DOS_POSIX)
+
+    if (EXTENDED_MEDIA_MODE)
+      add_definitions(-DEXTENDED_MEDIA_MODE)
+      message(STATUS "Extended media mode enabled")
+      # required to find 'glibconfig.h'
+      find_package(PkgConfig)
+      pkg_check_modules(GLIB2 REQUIRED glib-2.0)
+      add_definitions(${GLIB2_CFLAGS})
+    endif()
+
+
 endif()
 
 # Building application
 
-# --- Type HMI
-if (HMI STREQUAL "web")
-    set(WEB_HMI ON)
-    add_definitions(-DWEB_HMI)
-else ()
-    set(HMI "no")
-    add_definitions(-DNO_HMI)
-endif ()
 
-if (HMI STREQUAL "web" AND NOT DEFINED HMIADAPTER)
-    set(HMIADAPTER "messagebroker")
-endif()
+if (1)
+    # --- Type HMI
+    if (HMI STREQUAL "web")
+        set(WEB_HMI ON)
+        add_definitions(-DWEB_HMI)
+    else ()
+        set(HMI "no")
+        add_definitions(-DNO_HMI)
+    endif ()
 
-if (HMIADAPTER STREQUAL "messagebroker")
-    set(HMI_JSON_API ON)
-    add_definitions(-DMESSAGEBROKER_HMIADAPTER)
-    add_definitions(-DHMI_JSON_API)
-endif()
-
-# --- Directory with SDL interfaces, global types and ProtocolLib component
-include_directories(
-  ${COMPONENTS_DIR}/include
-  ${COMPONENTS_DIR}/protocol/include
-)
-
-# --- 3rd party libs
-add_subdirectory(./src/3rd_party EXCLUDE_FROM_ALL)
-
-find_package(OpenSSL REQUIRED)
-if(ENABLE_LOG)
-  include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
-endif()
-
-if(ENABLE_SECURITY)
-  add_definitions(-DENABLE_SECURITY)
-  set(SecurityManagerLibrary SecurityManager)
-  set(SecurityManagerIncludeDir ${COMPONENTS_DIR}/security_manager/include)
-  #set(SecurityManagerTestIncludeDir ${CMAKE_SOURCE_DIR}/test/components/security_manager/include)
-  message(STATUS "Security enabled")
-endif()
-
-if(ENABLE_HMI_PTU_DECRYPTION)
-  add_definitions(-DUSE_HMI_PTU_DECRYPTION)
-  message(STATUS "HMI PTU decription enabled")
-endif()
-
-set(RTLIB rt)
-if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
-  set(RTLIB )
-endif()
-
-SET(RPATH_DIRECTORIES
-  ${CMAKE_INSTALL_PREFIX}/bin/plugins
-  /usr/local/lib
-  /usr/local
-  ${CMAKE_INSTALL_PREFIX}/bin
-)
-SET(CMAKE_SKIP_BUILD_RPATH FALSE)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-SET(CMAKE_INSTALL_RPATH "${RPATH_DIRECTORIES}")
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-
-# Building tests
-if(BUILD_TESTS)
-  enable_testing()
-  add_definitions(-DBUILD_TESTS)
-  include_directories(
-    ${COMPONENTS_DIR}/include/test
-  )
-  message(STATUS "Tests enabled")
-endif()
-
-# --- 3rd party libs (static)
-add_subdirectory(./src/3rd_party-static)
-
-# --- Tools
-add_subdirectory(./tools)
-
-# --- Components
-add_subdirectory(./src/components)
-
-# --- Main application
-add_subdirectory(./src/appMain)
-
-# --- Plugins
-add_subdirectory(./src/plugins)
-
-add_dependencies(${PROJECT} Policy)
-add_dependencies(${PROJECT} copy_policy_library)
-
-# Building documentation
-
-# At first creating directory for generated documentation. Unfortunately doxygen
-# cannot generate it byself
-find_package(Doxygen)
-  if(DOXYGEN_FOUND)
-    option(DOXYGEN_ENABLE_DIAGRAMS "Enable graphical diagram generation" ON)
-    message(STATUS "Doxygen found. Documentation will be generated")
-
-    if(DOXYGEN_ENABLE_DIAGRAMS)
-      set(DOXYGEN_ENABLE_DIAGRAMS_PARAM "YES")
-    else()
-      set(DOXYGEN_ENABLE_DIAGRAMS_PARAM "NO")
+    if (HMI STREQUAL "web" AND NOT DEFINED HMIADAPTER)
+        set(HMIADAPTER "messagebroker")
     endif()
-    configure_file("${PROJECT_SOURCE_DIR}/Doxyfile" "${PROJECT_BINARY_DIR}/Doxyfile")
-    file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/doc/doxygen")
-    add_custom_target(doxygen COMMAND ${DOXYGEN_EXECUTABLE} "${PROJECT_BINARY_DIR}/Doxyfile")
-  else()
-    message(STATUS "Doxygen not found. Documentation will not be generated")
-    message(STATUS "To enable documentation generation please install doxygen and graphviz packages")
-    message(STATUS "sudo apt-get install doxygen graphviz")
-    message(STATUS "To enable processing of MscGen comments please install mscgen")
-    message(STATUS "sudo apt-get install mscgen")
+
+    if (HMIADAPTER STREQUAL "messagebroker")
+        set(HMI_JSON_API ON)
+        add_definitions(-DMESSAGEBROKER_HMIADAPTER)
+        add_definitions(-DHMI_JSON_API)
+    endif()
+
+
+    # --- 3rd party libs
+    add_subdirectory(./src/3rd_party EXCLUDE_FROM_ALL)
+
+    # --- Directory with SDL interfaces, global types and ProtocolLib component
+    include_directories(
+      ${COMPONENTS_DIR}/include
+      ${COMPONENTS_DIR}/protocol/include
+    )
+
+
+    find_package(OpenSSL REQUIRED)
+    if(ENABLE_LOG)
+      include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
+    endif()
+
+    if(ENABLE_SECURITY)
+      add_definitions(-DENABLE_SECURITY)
+      set(SecurityManagerLibrary SecurityManager)
+      set(SecurityManagerIncludeDir ${COMPONENTS_DIR}/security_manager/include)
+      #set(SecurityManagerTestIncludeDir ${CMAKE_SOURCE_DIR}/test/components/security_manager/include)
+      message(STATUS "Security enabled")
+    endif()
+
+    if(ENABLE_HMI_PTU_DECRYPTION)
+      add_definitions(-DUSE_HMI_PTU_DECRYPTION)
+      message(STATUS "HMI PTU decription enabled")
+    endif()
+
+    set(RTLIB rt)
+    if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+      set(RTLIB )
+    endif()
+
+    SET(RPATH_DIRECTORIES
+      ${CMAKE_INSTALL_PREFIX}/bin/plugins
+      /usr/local/lib
+      /usr/local
+      ${CMAKE_INSTALL_PREFIX}/bin
+    )
+    SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    SET(CMAKE_INSTALL_RPATH "${RPATH_DIRECTORIES}")
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+    # Building tests
+    if(BUILD_TESTS)
+      enable_testing()
+      add_definitions(-DBUILD_TESTS)
+      include_directories(
+        ${COMPONENTS_DIR}/include/test
+      )
+      message(STATUS "Tests enabled")
+    endif()
+
+    # --- 3rd party libs (static)
+    add_subdirectory(./src/3rd_party-static)
+
+    # --- Tools
+    add_subdirectory(./tools)
+
+    # --- Components
+    add_subdirectory(./src/components)
+
+    # --- Main application
+    add_subdirectory(./src/appMain)
+
+    # --- Plugins
+    add_subdirectory(./src/plugins)
+
+    add_dependencies(${PROJECT} Policy)
+    add_dependencies(${PROJECT} copy_policy_library)
+
+    # Building documentation
+
+    # At first creating directory for generated documentation. Unfortunately doxygen
+    # cannot generate it byself
+    find_package(Doxygen)
+      if(FALSE)
+        option(DOXYGEN_ENABLE_DIAGRAMS "Enable graphical diagram generation" ON)
+        message(STATUS "Doxygen found. Documentation will be generated")
+
+        if(DOXYGEN_ENABLE_DIAGRAMS)
+          set(DOXYGEN_ENABLE_DIAGRAMS_PARAM "YES")
+        else()
+          set(DOXYGEN_ENABLE_DIAGRAMS_PARAM "NO")
+        endif()
+        configure_file("${PROJECT_SOURCE_DIR}/Doxyfile" "${PROJECT_BINARY_DIR}/Doxyfile")
+        file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/doc/doxygen")
+        add_custom_target(doxygen COMMAND ${DOXYGEN_EXECUTABLE} "${PROJECT_BINARY_DIR}/Doxyfile")
+        message(STATUS "Doxygen found. Documentation will be generated")
+      else()
+        message(STATUS "Doxygen not found. Documentation will not be generated")
+        message(STATUS "To enable documentation generation please install doxygen and graphviz packages")
+        message(STATUS "sudo apt-get install doxygen graphviz")
+        message(STATUS "To enable processing of MscGen comments please install mscgen")
+        message(STATUS "sudo apt-get install mscgen")
+    endif()
+
 endif()

@@ -36,6 +36,9 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/src/appMain/smartDeviceLinkCore")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/smartDeviceLinkCore" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/smartDeviceLinkCore")
+    execute_process(COMMAND "/usr/bin/install_name_tool"
+      -change "/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/src/3rd_party/expat-2.1.0/libexpat.dylib" "libexpat.dylib"
+      "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/smartDeviceLinkCore")
     execute_process(COMMAND /usr/bin/install_name_tool
       -add_rpath "/Users/russelljohnson/dev/sdl_core/compiled_packages/macos/bin/plugins"
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/smartDeviceLinkCore")

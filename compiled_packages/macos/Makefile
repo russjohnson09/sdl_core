@@ -68,6 +68,16 @@ install/local/fast: preinstall/fast
 	/usr/local/Cellar/cmake/3.15.0/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -113,16 +123,6 @@ install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
 	/usr/local/Cellar/cmake/3.15.0/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -183,19 +183,6 @@ ford-tarball/fast:
 .PHONY : ford-tarball/fast
 
 #=============================================================================
-# Target rules for targets named doxygen
-
-# Build rule for target.
-doxygen: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 doxygen
-.PHONY : doxygen
-
-# fast build rule for target.
-doxygen/fast:
-	$(MAKE) -f CMakeFiles/doxygen.dir/build.make CMakeFiles/doxygen.dir/build
-.PHONY : doxygen/fast
-
-#=============================================================================
 # Target rules for targets named pasa-tarball
 
 # Build rule for target.
@@ -209,17 +196,17 @@ pasa-tarball/fast:
 .PHONY : pasa-tarball/fast
 
 #=============================================================================
-# Target rules for targets named Boost
+# Target rules for targets named 3rd_party_logger
 
 # Build rule for target.
-Boost: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Boost
-.PHONY : Boost
+3rd_party_logger: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 3rd_party_logger
+.PHONY : 3rd_party_logger
 
 # fast build rule for target.
-Boost/fast:
-	$(MAKE) -f src/3rd_party/CMakeFiles/Boost.dir/build.make src/3rd_party/CMakeFiles/Boost.dir/build
-.PHONY : Boost/fast
+3rd_party_logger/fast:
+	$(MAKE) -f src/3rd_party/CMakeFiles/3rd_party_logger.dir/build.make src/3rd_party/CMakeFiles/3rd_party_logger.dir/build
+.PHONY : 3rd_party_logger/fast
 
 #=============================================================================
 # Target rules for targets named install-3rd_party
@@ -235,6 +222,19 @@ install-3rd_party/fast:
 .PHONY : install-3rd_party/fast
 
 #=============================================================================
+# Target rules for targets named Boost
+
+# Build rule for target.
+Boost: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Boost
+.PHONY : Boost
+
+# fast build rule for target.
+Boost/fast:
+	$(MAKE) -f src/3rd_party/CMakeFiles/Boost.dir/build.make src/3rd_party/CMakeFiles/Boost.dir/build
+.PHONY : Boost/fast
+
+#=============================================================================
 # Target rules for targets named libbson
 
 # Build rule for target.
@@ -246,6 +246,71 @@ libbson: cmake_check_build_system
 libbson/fast:
 	$(MAKE) -f src/3rd_party/CMakeFiles/libbson.dir/build.make src/3rd_party/CMakeFiles/libbson.dir/build
 .PHONY : libbson/fast
+
+#=============================================================================
+# Target rules for targets named install-3rd_party_logger
+
+# Build rule for target.
+install-3rd_party_logger: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 install-3rd_party_logger
+.PHONY : install-3rd_party_logger
+
+# fast build rule for target.
+install-3rd_party_logger/fast:
+	$(MAKE) -f src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/build.make src/3rd_party/CMakeFiles/install-3rd_party_logger.dir/build
+.PHONY : install-3rd_party_logger/fast
+
+#=============================================================================
+# Target rules for targets named expat
+
+# Build rule for target.
+expat: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 expat
+.PHONY : expat
+
+# fast build rule for target.
+expat/fast:
+	$(MAKE) -f src/3rd_party/expat-2.1.0/CMakeFiles/expat.dir/build.make src/3rd_party/expat-2.1.0/CMakeFiles/expat.dir/build
+.PHONY : expat/fast
+
+#=============================================================================
+# Target rules for targets named libapr-1
+
+# Build rule for target.
+libapr-1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 libapr-1
+.PHONY : libapr-1
+
+# fast build rule for target.
+libapr-1/fast:
+	$(MAKE) -f src/3rd_party/apr-cmake/CMakeFiles/libapr-1.dir/build.make src/3rd_party/apr-cmake/CMakeFiles/libapr-1.dir/build
+.PHONY : libapr-1/fast
+
+#=============================================================================
+# Target rules for targets named apr-util
+
+# Build rule for target.
+apr-util: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 apr-util
+.PHONY : apr-util
+
+# fast build rule for target.
+apr-util/fast:
+	$(MAKE) -f src/3rd_party/apr-util-cmake/CMakeFiles/apr-util.dir/build.make src/3rd_party/apr-util-cmake/CMakeFiles/apr-util.dir/build
+.PHONY : apr-util/fast
+
+#=============================================================================
+# Target rules for targets named liblog4cxx
+
+# Build rule for target.
+liblog4cxx: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 liblog4cxx
+.PHONY : liblog4cxx
+
+# fast build rule for target.
+liblog4cxx/fast:
+	$(MAKE) -f src/3rd_party/apache-log4cxx-cmake/CMakeFiles/liblog4cxx.dir/build.make src/3rd_party/apache-log4cxx-cmake/CMakeFiles/liblog4cxx.dir/build
+.PHONY : liblog4cxx/fast
 
 #=============================================================================
 # Target rules for targets named jsoncpp
@@ -728,6 +793,19 @@ LowVoltageHandlerObjLibrary/fast:
 	$(MAKE) -f src/appMain/CMakeFiles/LowVoltageHandlerObjLibrary.dir/build.make src/appMain/CMakeFiles/LowVoltageHandlerObjLibrary.dir/build
 .PHONY : LowVoltageHandlerObjLibrary/fast
 
+#=============================================================================
+# Target rules for targets named appenders
+
+# Build rule for target.
+appenders: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 appenders
+.PHONY : appenders
+
+# fast build rule for target.
+appenders/fast:
+	$(MAKE) -f src/plugins/appenders/CMakeFiles/appenders.dir/build.make src/plugins/appenders/CMakeFiles/appenders.dir/build
+.PHONY : appenders/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -735,18 +813,23 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/local"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... genivi-tarball"
 	@echo "... install/strip"
 	@echo "... install"
 	@echo "... ford-tarball"
-	@echo "... list_install_components"
-	@echo "... doxygen"
 	@echo "... pasa-tarball"
-	@echo "... Boost"
+	@echo "... 3rd_party_logger"
 	@echo "... install-3rd_party"
+	@echo "... Boost"
 	@echo "... libbson"
+	@echo "... install-3rd_party_logger"
+	@echo "... expat"
+	@echo "... libapr-1"
+	@echo "... apr-util"
+	@echo "... liblog4cxx"
 	@echo "... jsoncpp"
 	@echo "... encryption"
 	@echo "... intergen"
@@ -784,6 +867,7 @@ help:
 	@echo "... MediaManager"
 	@echo "... smartDeviceLinkCore"
 	@echo "... LowVoltageHandlerObjLibrary"
+	@echo "... appenders"
 .PHONY : help
 
 

@@ -694,9 +694,9 @@ void MessageHelper::SendUnsubscribeButtonNotification(
   app_mngr.GetRPCService().ManageHMICommand(message);
 }
 
-const VehicleData& MessageHelper::vehicle_data() {
-  return vehicle_data_;
-}
+//const VehicleData& MessageHelper::vehicle_data() {
+//  return vehicle_data_;
+//}
 
 std::string MessageHelper::HMIResultToString(
     hmi_apis::Common_Result::eType hmi_result) {

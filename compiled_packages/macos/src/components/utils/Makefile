@@ -198,6 +198,33 @@ src/appenders_loader.cc.s:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/appenders_loader.cc.s
 .PHONY : src/appenders_loader.cc.s
 
+src/auto_trace.o: src/auto_trace.cc.o
+
+.PHONY : src/auto_trace.o
+
+# target to build an object file
+src/auto_trace.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/auto_trace.cc.o
+.PHONY : src/auto_trace.cc.o
+
+src/auto_trace.i: src/auto_trace.cc.i
+
+.PHONY : src/auto_trace.i
+
+# target to preprocess a source file
+src/auto_trace.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/auto_trace.cc.i
+.PHONY : src/auto_trace.cc.i
+
+src/auto_trace.s: src/auto_trace.cc.s
+
+.PHONY : src/auto_trace.s
+
+# target to generate assembly for a file
+src/auto_trace.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/auto_trace.cc.s
+.PHONY : src/auto_trace.cc.s
+
 src/bitstream.o: src/bitstream.cc.o
 
 .PHONY : src/bitstream.o
@@ -413,6 +440,114 @@ src/lock_boost.s: src/lock_boost.cc.s
 src/lock_boost.cc.s:
 	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/lock_boost.cc.s
 .PHONY : src/lock_boost.cc.s
+
+src/log_message_loop_thread.o: src/log_message_loop_thread.cc.o
+
+.PHONY : src/log_message_loop_thread.o
+
+# target to build an object file
+src/log_message_loop_thread.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/log_message_loop_thread.cc.o
+.PHONY : src/log_message_loop_thread.cc.o
+
+src/log_message_loop_thread.i: src/log_message_loop_thread.cc.i
+
+.PHONY : src/log_message_loop_thread.i
+
+# target to preprocess a source file
+src/log_message_loop_thread.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/log_message_loop_thread.cc.i
+.PHONY : src/log_message_loop_thread.cc.i
+
+src/log_message_loop_thread.s: src/log_message_loop_thread.cc.s
+
+.PHONY : src/log_message_loop_thread.s
+
+# target to generate assembly for a file
+src/log_message_loop_thread.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/log_message_loop_thread.cc.s
+.PHONY : src/log_message_loop_thread.cc.s
+
+src/logger.o: src/logger.cc.o
+
+.PHONY : src/logger.o
+
+# target to build an object file
+src/logger.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger.cc.o
+.PHONY : src/logger.cc.o
+
+src/logger.i: src/logger.cc.i
+
+.PHONY : src/logger.i
+
+# target to preprocess a source file
+src/logger.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger.cc.i
+.PHONY : src/logger.cc.i
+
+src/logger.s: src/logger.cc.s
+
+.PHONY : src/logger.s
+
+# target to generate assembly for a file
+src/logger.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger.cc.s
+.PHONY : src/logger.cc.s
+
+src/logger_status.o: src/logger_status.cc.o
+
+.PHONY : src/logger_status.o
+
+# target to build an object file
+src/logger_status.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger_status.cc.o
+.PHONY : src/logger_status.cc.o
+
+src/logger_status.i: src/logger_status.cc.i
+
+.PHONY : src/logger_status.i
+
+# target to preprocess a source file
+src/logger_status.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger_status.cc.i
+.PHONY : src/logger_status.cc.i
+
+src/logger_status.s: src/logger_status.cc.s
+
+.PHONY : src/logger_status.s
+
+# target to generate assembly for a file
+src/logger_status.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/logger_status.cc.s
+.PHONY : src/logger_status.cc.s
+
+src/push_log.o: src/push_log.cc.o
+
+.PHONY : src/push_log.o
+
+# target to build an object file
+src/push_log.cc.o:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/push_log.cc.o
+.PHONY : src/push_log.cc.o
+
+src/push_log.i: src/push_log.cc.i
+
+.PHONY : src/push_log.i
+
+# target to preprocess a source file
+src/push_log.cc.i:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/push_log.cc.i
+.PHONY : src/push_log.cc.i
+
+src/push_log.s: src/push_log.cc.s
+
+.PHONY : src/push_log.s
+
+# target to generate assembly for a file
+src/push_log.cc.s:
+	cd /Users/russelljohnson/dev/sdl_core/compiled_packages/macos && $(MAKE) -f src/components/utils/CMakeFiles/Utils.dir/build.make src/components/utils/CMakeFiles/Utils.dir/src/push_log.cc.s
+.PHONY : src/push_log.cc.s
 
 src/resource_usage.o: src/resource_usage.cc.o
 
@@ -727,6 +862,9 @@ help:
 	@echo "... src/appenders_loader.o"
 	@echo "... src/appenders_loader.i"
 	@echo "... src/appenders_loader.s"
+	@echo "... src/auto_trace.o"
+	@echo "... src/auto_trace.i"
+	@echo "... src/auto_trace.s"
 	@echo "... src/bitstream.o"
 	@echo "... src/bitstream.i"
 	@echo "... src/bitstream.s"
@@ -751,6 +889,18 @@ help:
 	@echo "... src/lock_boost.o"
 	@echo "... src/lock_boost.i"
 	@echo "... src/lock_boost.s"
+	@echo "... src/log_message_loop_thread.o"
+	@echo "... src/log_message_loop_thread.i"
+	@echo "... src/log_message_loop_thread.s"
+	@echo "... src/logger.o"
+	@echo "... src/logger.i"
+	@echo "... src/logger.s"
+	@echo "... src/logger_status.o"
+	@echo "... src/logger_status.i"
+	@echo "... src/logger_status.s"
+	@echo "... src/push_log.o"
+	@echo "... src/push_log.i"
+	@echo "... src/push_log.s"
 	@echo "... src/resource_usage.o"
 	@echo "... src/resource_usage.i"
 	@echo "... src/resource_usage.s"

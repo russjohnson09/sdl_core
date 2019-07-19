@@ -35,6 +35,11 @@
 #include <string>
 
 #include "application_manager/application_impl.h"
+//Undefined symbols for architecture x86_64:
+//  "application_manager::MessageHelper::vehicle_data()", referenced from:
+//TODO is the implementation missing? message_helper.cc
+//sdl_core/compiled_packages/macos/src/components/application_manager/CMakeFiles/MessageHelper.dir/src/message_helper/message_helper.cc.o
+//message_helper.cc.o exists and implements the method properly
 #include "application_manager/message_helper.h"
 #include "interfaces/HMI_API.h"
 #include "interfaces/MOBILE_API.h"
@@ -80,7 +85,13 @@ void GetVehicleDataRequest::Run() {
     SendResponse(false, mobile_apis::Result::REJECTED);
     return;
   }
-  const VehicleData& vehicle_data = MessageHelper::vehicle_data();
+
+//  Undefined symbols for architecture x86_64:
+//    "application_manager::MessageHelper::vehicle_data()", referenced from:
+//        vehicle_info_plugin::commands::GetVehicleDataRequest::Run() in get_vehicle_data_request.cc.o
+
+  const VehicleData& vehicle_data = application_manager::MessageHelper::vehicle_data();
+    /*
   VehicleData::const_iterator it = vehicle_data.begin();
   smart_objects::SmartObject msg_params =
       smart_objects::SmartObject(smart_objects::SmartType_Map);
@@ -92,6 +103,7 @@ void GetVehicleDataRequest::Run() {
       msg_params[it->first] = (*message_)[strings::msg_params][it->first];
     }
   }
+
   if (msg_params.length() > min_length_msg_params) {
     StartAwaitForInterface(HmiInterfaces::HMI_INTERFACE_VehicleInfo);
     SendHMIRequest(
@@ -102,6 +114,7 @@ void GetVehicleDataRequest::Run() {
   } else {
     SendResponse(false, mobile_apis::Result::INVALID_DATA);
   }
+    */
 }
 
 void GetVehicleDataRequest::on_event(const event_engine::Event& event) {
@@ -145,3 +158,6 @@ void GetVehicleDataRequest::on_event(const event_engine::Event& event) {
 }  // namespace commands
 
 }  // namespace vehicle_info_plugin
+
+
+//https://github.com/opencv/opencv/issues/6027

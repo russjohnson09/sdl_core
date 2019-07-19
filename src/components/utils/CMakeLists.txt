@@ -33,6 +33,12 @@ include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/sources.cmake)
 
 find_package(Sqlite3 REQUIRED)
 
+#/usr/local/include
+#/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx
+set(LOG4CXX_INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party/apache-log4cxx-0.10.0/src/main/include/log4cxx)
+
+message(LOG4CXX_INCLUDE_DIRECTORY:${LOG4CXX_INCLUDE_DIRECTORY})
+
 include_directories (
   ${COMPONENTS_DIR}/utils/include
   ${COMPONENTS_DIR}/config_profile/include
