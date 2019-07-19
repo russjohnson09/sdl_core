@@ -114,6 +114,9 @@ typedef Array<Enum<ModuleType>, 0, 255> ModuleTypes;
 typedef AppHMIType AppHmiType;
 typedef std::vector<AppHMIType> AppHmiTypes;
 
+//https://stackoverflow.com/questions/3065154/undefined-reference-to-vtable
+///sdl_core/src/components/policy/policy_regular/include/policy/policy_table/types.h:117: undefined reference to `vtable for rpc::policy_table_interface_base::AppServiceHandledRpc'
+//are files being included properly?
 struct AppServiceHandledRpc : CompositeType {
  public:
   FunctionIDInt function_id;

@@ -2596,6 +2596,33 @@ bool Profile::ReadUIntValue(uint32_t* value,
   }
 }
 
+
+
+#if defined(OS_DARWIN)
+//platform dependent implementation using size_t causes some issues here with mac.
+//these are the same function on linux
+bool Profile::ReadUIntValue(size_t* value,
+                            uint64_t default_value,
+                            const char* const pSection,
+                            const char* const pKey) const {
+  std::string string_value;
+  if (!ReadValue(&string_value, pSection, pKey)) {
+    *value = default_value;
+    return false;
+  } else {
+    uint64_t user_value;
+    if (!StringToNumber(string_value, user_value)) {
+      *value = default_value;
+      return false;
+    }
+
+    *value = user_value;
+    return true;
+  }
+}
+#endif
+
+//#else
 bool Profile::ReadUIntValue(uint64_t* value,
                             uint64_t default_value,
                             const char* const pSection,
@@ -2616,25 +2643,7 @@ bool Profile::ReadUIntValue(uint64_t* value,
   }
 }
 
-bool Profile::ReadUIntValue(size_t* value,
-                            uint64_t default_value,
-                            const char* const pSection,
-                            const char* const pKey) const {
-  std::string string_value;
-  if (!ReadValue(&string_value, pSection, pKey)) {
-    *value = default_value;
-    return false;
-  } else {
-    uint64_t user_value;
-    if (!StringToNumber(string_value, user_value)) {
-      *value = default_value;
-      return false;
-    }
 
-    *value = user_value;
-    return true;
-  }
-}
 
 bool Profile::StringToNumber(const std::string& input, uint64_t& output) const {
   const char* input_value = input.c_str();

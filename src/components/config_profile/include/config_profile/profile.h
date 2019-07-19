@@ -889,16 +889,31 @@ class Profile : public protocol_handler::ProtocolHandlerSettings,
                      const char* const pSection,
                      const char* const pKey) const;
 
-  bool ReadUIntValue(uint64_t* value,
-                     uint64_t default_value,
-                     const char* const pSection,
-                     const char* const pKey) const;
 
+///Users/russelljohnson/dev/sdl_core/src/components/config_profile/include/config_profile/profile.h:882:8: note: candidate function not viable: no known conversion from 'uint64_t *' (aka 'unsigned long long *') to 'uint16_t *' (aka 'unsigned short *') for 1st argument
+
+
+
+#if defined(OS_DARWIN)
 //platform dependent implementation using size_t causes some issues here with mac.
+//these are the same function on linux
   bool ReadUIntValue(size_t* value,
                      uint64_t default_value,
                      const char* const pSection,
                      const char* const pKey) const;
+#endif
+//#else
+
+  bool ReadUIntValue(uint64_t* value,
+                     uint64_t default_value,
+                     const char* const pSection,
+                     const char* const pKey) const;
+//#endif
+
+
+
+
+
 
   /**
    * @brief Checks, if path is relative

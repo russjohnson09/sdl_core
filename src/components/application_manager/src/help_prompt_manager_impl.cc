@@ -206,7 +206,9 @@ void HelpPromptManagerImpl::GenerateVrItems(
       smart_objects::SmartObject(smart_objects::SmartType_Array);
 
   const size_t count_to_add = std::min(vr_commands_.size(), kLimitCommand);
-  for (size_t i = 0; i < count_to_add; ++i) {
+
+  //TODO size_t usage fix?
+  for (uint64_t i = 0; i < count_to_add; ++i) {
     const VRCommandPair& pair = vr_commands_[i];
 
     smart_objects::SmartObject item(smart_objects::SmartType_Map);
@@ -214,7 +216,8 @@ void HelpPromptManagerImpl::GenerateVrItems(
     if (strings::help_prompt == vr_key) {
       item[strings::type] = mobile_apis::SpeechCapabilities::SC_TEXT;
     } else {
-      item[strings::position] = i + 1;
+      //https://stackoverflow.com/questions/19819130/c-ambiguous-overload-for-operator
+      item[strings::position] = (i + 1);
     }
 
     out_msg_params[vr_key][i] = item;

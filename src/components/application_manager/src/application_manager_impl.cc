@@ -1490,14 +1490,17 @@ void ApplicationManagerImpl::OnFindNewApplicationsRequest() {
   GetPolicyHandler().OnAppsSearchStarted();
 }
 
+//https://stackoverflow.com/questions/35585409/reference-to-distance-is-ambiguous?lq=1
 void ApplicationManagerImpl::SendUpdateAppList() {
   LOG4CXX_AUTO_TRACE(logger_);
 
+  //does smart_objects define FunctionID
   using namespace smart_objects;
   using namespace hmi_apis;
 
+//is this hmi_apis::FunctionID or mobile_apis::FunctionID
   SmartObjectSPtr request = MessageHelper::CreateModuleInfoSO(
-      FunctionID::BasicCommunication_UpdateAppList, *this);
+      hmi_apis::FunctionID::BasicCommunication_UpdateAppList, *this);
 
   (*request)[strings::msg_params][strings::applications] =
       SmartObject(SmartType_Array);
