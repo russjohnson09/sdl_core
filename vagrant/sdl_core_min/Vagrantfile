@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#vagrant up
+#vagrant reload
+
+
+Vagrant.configure(2) do |config|
+#https://app.vagrantup.com/jamesthinkbox/boxes/ubuntu-16.04-desktop-amd64
+
+  #onfig.vm.box = "jamesthinkbox/ubuntu-16.04-desktop-amd64"
+  #config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
+
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "sdl-core-min"
+  #config.vm.provision "shell", inline: $script, privileged: false
+
+
+
+  # Expose the following ports
+  #   3001: Expose SDL Core's file system
+  #   12345: Expose SDL Core's primary port. Used to communicate with the SDL Core instance over TCP
+  #   5050: Expose video streaming port
+  #   5080: Expose audio streaming port
+  #   8090: Expose time testing port
+  #   8888: Expose websocket port for core log streaming
+  #   9000: Websocket connection to the broker
+  #   9898: Expose miniature policy server port
+
+#https://www.hostpapa.ca/knowledgebase/add-subdomain-points-ip-address/
+
+
+    #promiscuous mode  = Allow All
+    #config.vm.network "public_network"
+    #after getting the config use this
+    #config.vm.network "public_network"
+    config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)', ip: "192.168.1.201"
+
+  # Increase memory for Parallels Desktop
+  #config.vm.provider "parallels" do |p, o|
+  #  p.memory = "1024"
+  #end
+
+  # Increase memory for Virtualbox
+  config.vm.provider "virtualbox" do |vb|
+        vb.memory = 10123
+        vb.customize ["modifyvm", :id, "--cpus", "4"]
+
+  end
+
+  # Increase memory for VMware
+  #["vmware_fusion", "vmware_workstation"].each do |p|
+  #  config.vm.provider p do |v|
+  #    v.vmx["memsize"] = "1024"
+  #  end
+  #end
+end
+
+
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder "./../../", "/sdl_core"
+
+  #make[2]: Warning: File 'src/components/interfaces/HMI_API_schema.h' has modification time 0.26 s in the future
+  #TODO maybe linking to the build isn't a good idea.
+end
