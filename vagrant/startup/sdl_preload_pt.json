@@ -13,7 +13,7 @@
         625],
       "endpoints": {
         "0x07": {
-          "default": ["http://x.x.x.x:3000/api/1/policies/proprietary"]
+          "default": ["http://192.168.1.57:4005/api/v1/production/policy"]
         },
         "0x04": {
           "default": ["http://x.x.x.x:3000/api/1/softwareUpdate"]
