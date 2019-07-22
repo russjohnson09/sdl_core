@@ -46,5 +46,8 @@ end
 Vagrant.configure("2") do |config|
   # other config here
 
-  config.vm.synced_folder "./../../", "/sdl_core"
+  #config.vm.synced_folder "./../../", "/sdl_core"
+
+   config.vm.synced_folder "./../../", "/sdl_core_rsync", type: "rsync",
+      rsync__exclude: ".git/"
 end
