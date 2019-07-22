@@ -10,14 +10,9 @@ Vagrant.configure(2) do |config|
   config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
 
   #used as the base box for other builds?
-  config.vm.hostname = "sdl-core-min"
+  config.vm.hostname = "sdl-core-develop"
 
-  config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)', ip: "192.168.1.203"
-
-  # Increase memory for Parallels Desktop
-  config.vm.provider "parallels" do |p, o|
-    p.memory = "1024"
-  end
+  config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)', ip: "192.168.1.204"
 
   # Increase memory for Virtualbox
   config.vm.provider "virtualbox" do |vb|
@@ -38,7 +33,7 @@ Vagrant.configure("2") do |config|
   #config.vm.provision "shell", path: "../dependencies.sh"
 
   config.vm.provision "shell", path: "../dependencies.sh", run: "once"
-  config.vm.provision "shell", path: "../compile.sh",     run: "always"
+  config.vm.provision "shell", path: "../compile-dev.sh",     run: "always"
 
 #https://www.vagrantup.com/docs/provisioning/basic_usage.html
   config.vm.provision "shell", path: "../startup.sh",     run: "always"

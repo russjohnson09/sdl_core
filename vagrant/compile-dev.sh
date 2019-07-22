@@ -12,7 +12,7 @@ sudo mkdir /core || true
 sudo chown vagrant:vagrant /core
 cd /core
 
-git clone --depth 1 https://github.com/russjohnson09/sdl_core.git -b russ/vagrant-master || true
+git clone --depth 1 https://github.com/russjohnson09/sdl_core.git -b russ/vagrant-develop || true
 cd /core/sdl_core
 sudo chown vagrant:vagrant /core/sdl_core
 
