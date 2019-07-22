@@ -12,6 +12,8 @@ Vagrant.configure(2) do |config|
   #used as the base box for other builds?
   config.vm.hostname = "sdl-core-min"
 
+
+  #must manually set promiscuous mode in virtual box.
   config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)', ip: "192.168.1.222"
 
 #telnet 192.168.1.222 12345
@@ -32,7 +34,17 @@ Vagrant.configure(2) do |config|
 end
 
 
+#https://www.vagrantup.com/docs/plugins/commands.html
 Vagrant.configure("2") do |config|
+
+#TODO pass in environmental variables on vagrant up. add custom vagrant command?
+#config.vm.provision "shell", inline: <<-SHELL
+#  echo "export MYVAR='my_value'" >> /etc/profile.d/myvar.sh
+#SHELL
+
+  config.vm.synced_folder "./../startup", "/startup"
+
+
   # other config here
 
 #I think this synced folder might work okay it is just that the third party libraries have to recompile each time. It is hard to get an accurate measurement.
@@ -41,8 +53,11 @@ Vagrant.configure("2") do |config|
 
   #config.vm.provision "shell", path: "../dependencies.sh"
 
-  config.vm.provision "shell", path: "../dependencies.sh", run: "once"
-  config.vm.provision "shell", path: "../compile.sh",     run: "always"
+#rerun provisions.
+  #vagrant reload --provision-with dependencies,compile,shell
+
+  config.vm.provision "dependencies", type: "shell", path: "../dependencies.sh", run: "once"
+  config.vm.provision "compile", type: "shell", path: "../compile.sh", run: "once"
 
 #https://www.vagrantup.com/docs/provisioning/basic_usage.html
   config.vm.provision "shell", path: "../startup.sh",     run: "always"
