@@ -15,10 +15,16 @@ fi
 
 sudo chown vagrant:vagrant /core -R
 
-cd /core/build/bin/
+rm /core/build/bin/storage -R || true
 
-nohup ./start.sh > /core/build/sdl_log.out 2>&1
+#doesn't actually start it but does the main setup.
 
+#cd /core/build/bin/
+
+#nohup ./start.sh > /core/build/sdl_log.out 2>&1
+
+
+#./start.sh &
 #/core/build/bin/start.sh &
 
 
