@@ -183,6 +183,7 @@ const char* is_template = "isTemplate";
 const char* image = "image";
 const char* type = "type";
 const char* system_file = "systemFile";
+const char* is_system_file = "isSystemFile";
 const char* offset = "offset";
 const char* length = "length";
 const char* secondary_image = "secondaryImage";
@@ -289,6 +290,7 @@ const char* service_active = "serviceActive";
 const char* app_service_id = "appServiceId";
 const char* service_data = "serviceData";
 const char* media_service_data = "mediaServiceData";
+const char* media_image = "mediaImage";
 const char* weather_service_data = "weatherServiceData";
 const char* location = "location";
 const char* current_forecast = "currentForecast";
@@ -309,6 +311,10 @@ const char* service_records = "serviceRecords";
 const char* activate = "activate";
 const char* set_as_default = "setAsDefault";
 const char* origin_app = "originApp";
+
+// sis data
+const char* station_short_name = "stationShortName";
+const char* station_location = "stationLocation";
 
 // resuming
 const char* application_commands = "applicationCommands";
@@ -338,8 +344,12 @@ const char* time_stamp = "timeStamp";
 const char* manual_text_entry = "manualTextEntry";
 const char* image_type_supported = "imageTypeSupported";
 const char* unexpected_disconnect = "unexpectedDisconnect";
+
+const char* shifted = "shifted";
+const char* altitude = "altitude";
 const char* longitude_degrees = "longitudeDegrees";
 const char* latitude_degrees = "latitudeDegrees";
+
 const char* address = "address";
 const char* country_name = "countryName";
 const char* country_code = "countryCode";

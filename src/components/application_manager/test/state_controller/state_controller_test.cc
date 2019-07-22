@@ -30,46 +30,46 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gtest/gtest.h"
+#include "application_manager/application_manager_impl.h"
 #include "application_manager/hmi_state.h"
+#include "application_manager/mock_application.h"
 #include "application_manager/state_controller_impl.h"
 #include "application_manager/usage_statistics.h"
-#include "application_manager/application_manager_impl.h"
-#include "application_manager/mock_application.h"
-#include "connection_handler/mock_connection_handler_settings.h"
 #include "connection_handler/connection_handler_impl.h"
+#include "connection_handler/mock_connection_handler_settings.h"
+#include "gtest/gtest.h"
 #include "transport_manager/mock_transport_manager.h"
-#include "utils/lock.h"
 #include "utils/data_accessor.h"
+#include "utils/lock.h"
 
-#include "application_manager/message_helper.h"
 #include "application_manager/event_engine/event.h"
-#include "application_manager/smart_object_keys.h"
+#include "application_manager/message_helper.h"
+#include "application_manager/mock_application_manager.h"
+#include "application_manager/mock_event_dispatcher.h"
 #include "application_manager/mock_message_helper.h"
+#include "application_manager/mock_rpc_service.h"
+#include "application_manager/policies/mock_policy_handler_interface.h"
+#include "application_manager/resumption/resume_ctrl.h"
+#include "application_manager/smart_object_keys.h"
+#include "connection_handler/mock_connection_handler.h"
 #include "policy/mock_policy_settings.h"
 #include "policy/usage_statistics/mock_statistics_manager.h"
 #include "protocol_handler/mock_session_observer.h"
-#include "connection_handler/mock_connection_handler.h"
-#include "application_manager/policies/mock_policy_handler_interface.h"
-#include "application_manager/mock_event_dispatcher.h"
-#include "application_manager/resumption/resume_ctrl.h"
-#include "application_manager/mock_application_manager.h"
-#include "application_manager/mock_rpc_service.h"
 
 namespace am = application_manager;
 using am::HmiState;
 using am::HmiStatePtr;
 using am::UsageStatistics;
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
-using ::testing::ReturnPointee;
-using ::testing::SaveArg;
+using ::testing::AtLeast;
+using ::testing::InSequence;
 using ::testing::Mock;
 using ::testing::NiceMock;
-using ::testing::InSequence;
+using ::testing::Return;
+using ::testing::ReturnPointee;
+using ::testing::ReturnRef;
+using ::testing::SaveArg;
 using ::testing::Truly;
-using ::testing::AtLeast;
 
 namespace test {
 namespace components {
@@ -1036,7 +1036,7 @@ class StateControllerImplTest : public ::testing::Test {
     (*bc_activate_app_request)[am::strings::params]
                               [am::strings::correlation_id] = corr_id;
     ON_CALL(message_helper_mock_,
-            GetBCActivateAppRequestToHMI(_, _, _, hmi_lvl, _, _))
+            GetBCActivateAppRequestToHMI(_, _, hmi_lvl, _, _))
         .WillByDefault(Return(bc_activate_app_request));
     ON_CALL(app_manager_mock_, GetRPCService())
         .WillByDefault(ReturnRef(mock_rpc_service_));
@@ -1969,12 +1969,6 @@ TEST_F(StateControllerImplTest, DISABLED_ActivateAppSuccessReceivedFromHMI) {
       StateLevelPair(LimitedState(), Common_HMILevel::LIMITED));
   hmi_states.push_back(
       StateLevelPair(BackgroundState(), Common_HMILevel::BACKGROUND));
-  hmi_states.push_back(
-      StateLevelPair(createHmiState(HMILevel::HMI_NONE,
-                                    AudioStreamingState::NOT_AUDIBLE,
-                                    VideoStreamingState::NOT_STREAMABLE,
-                                    SystemContext::SYSCTXT_MAIN),
-                     Common_HMILevel::NONE));
   std::vector<StateLevelPair> initial_hmi_states = hmi_states;
   std::vector<StateLevelPair>::iterator it = hmi_states.begin();
   std::vector<StateLevelPair>::iterator it2 = initial_hmi_states.begin();
@@ -2063,7 +2057,8 @@ TEST_F(StateControllerImplTest, SendEventBCActivateApp_HMIReceivesError) {
     EXPECT_CALL(app_manager_mock_, SendHMIStatusNotification(simple_app_))
         .Times(0);
     EXPECT_CALL(app_manager_mock_,
-                OnHMILevelChanged(simple_app_->app_id(), _, _)).Times(0);
+                OnHMILevelChanged(simple_app_->app_id(), _, _))
+        .Times(0);
 
     smart_objects::SmartObject message;
     message[am::strings::params][am::hmi_response::code] = *it;
@@ -2627,7 +2622,8 @@ TEST_F(StateControllerImplTest, SetRegularStateMediaToNonMediaApp_VR_Stopped) {
   EXPECT_CALL(*simple_app_ptr_, is_resuming()).WillRepeatedly(Return(false));
 
   EXPECT_CALL(message_helper_mock_,
-              SendOnResumeAudioSourceToHMI(simple_app_id_, _)).Times(0);
+              SendOnResumeAudioSourceToHMI(simple_app_id_, _))
+      .Times(0);
   EXPECT_CALL(*simple_app_ptr_,
               SetPostponedState(Truly(HmiStatesComparator(check_state))))
       .Times(0);
