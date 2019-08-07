@@ -92,6 +92,7 @@ extern const char* main_field_1;
 extern const char* main_field_2;
 extern const char* main_field_3;
 extern const char* main_field_4;
+extern const char* template_title;
 extern const char* metadata_tags;
 extern const char* eta;
 extern const char* time_to_destination;
@@ -130,6 +131,7 @@ extern const char* initial_text;
 extern const char* duration;
 extern const char* progress_indicator;
 extern const char* alert_type;
+extern const char* alert_icon;
 extern const char* play_tone;
 extern const char* soft_buttons;
 extern const char* soft_button_id;
@@ -255,6 +257,7 @@ extern const char* key_press_mode;
 // duplicate names from hmi_request
 extern const char* limited_character_list;
 extern const char* auto_complete_text;
+extern const char* auto_complete_list;
 extern const char* navigation_text;
 
 // vehicle info
@@ -417,7 +420,6 @@ extern const char* const language_supported;
 extern const char* const keyboard_layout_supported;
 extern const char* const keypress_mode_supported;
 extern const char* const limited_characters_list_supported;
-extern const char* const auto_complete_text_supported;
 extern const char* const send_location_enabled;
 extern const char* const get_way_points_enabled;
 extern const char* const entity_type;
@@ -480,6 +482,8 @@ namespace mobile_notification {
 extern const char* state;
 extern const char* syncp_timeout;
 extern const char* syncp_url;
+extern const char* lock_screen_dismissal_enabled;
+extern const char* lock_screen_dismissal_warning;
 }  // namespace mobile_notification
 
 namespace hmi_levels {
@@ -526,7 +530,7 @@ extern const char* keyboard_properties;
 extern const char* method_name;
 extern const char* keyboard_layout;
 extern const char* limited_character_list;
-extern const char* auto_complete_text;
+extern const char* auto_complete_list;
 extern const char* file;
 extern const char* file_name;
 extern const char* retry;

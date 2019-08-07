@@ -59,6 +59,7 @@ const char* main_field_1 = "mainField1";
 const char* main_field_2 = "mainField2";
 const char* main_field_3 = "mainField3";
 const char* main_field_4 = "mainField4";
+const char* template_title = "templateTitle";
 const char* metadata_tags = "metadataTags";
 const char* eta = "eta";
 const char* time_to_destination = "timeToDestination";
@@ -97,6 +98,7 @@ const char* initial_text = "initialText";
 const char* duration = "duration";
 const char* progress_indicator = "progressIndicator";
 const char* alert_type = "alertType";
+const char* alert_icon = "alertIcon";
 const char* play_tone = "playTone";
 const char* soft_buttons = "softButtons";
 const char* soft_button_id = "softButtonID";
@@ -222,6 +224,7 @@ const char* key_press_mode = "keypressMode";
 // duplicate names from hmi_request
 const char* limited_character_list = "limitedCharacterList";
 const char* auto_complete_text = "autoCompleteText";
+const char* auto_complete_list = "autoCompleteList";
 const char* navigation_text = "navigationText";
 
 // vehicle info
@@ -378,7 +381,6 @@ const char* const keyboard_layout_supported = "keyboardLayoutSupported";
 const char* const keypress_mode_supported = "keypressModeSupported";
 const char* const limited_characters_list_supported =
     "limitedCharactersListSupported";
-const char* const auto_complete_text_supported = "autoCompleteTextSupported";
 const char* const send_location_enabled = "sendLocationEnabled";
 const char* const get_way_points_enabled = "getWayPointsEnabled";
 const char* const entity_type = "entityType";
@@ -441,6 +443,8 @@ namespace mobile_notification {
 const char* state = "state";
 const char* syncp_timeout = "Timeout";
 const char* syncp_url = "URL";
+const char* lock_screen_dismissal_enabled = "lockScreenDismissalEnabled";
+const char* lock_screen_dismissal_warning = "lockScreenDismissalWarning";
 }  // namespace mobile_notification
 
 namespace hmi_levels {
@@ -485,7 +489,7 @@ const char* keyboard_properties = "keyboardProperties";
 const char* method_name = "methodName";
 const char* keyboard_layout = "keyboardLayout";
 const char* limited_character_list = "limitedCharacterList";
-const char* auto_complete_text = "autoCompleteText";
+const char* auto_complete_list = "autoCompleteList";
 const char* file = "file";
 const char* file_name = "fileName";
 const char* retry = "retry";
