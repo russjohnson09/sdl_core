@@ -12,7 +12,15 @@ Vagrant.configure(2) do |config|
   #used as the base box for other builds?
   config.vm.hostname = "sdl-core-develop"
 
+#directly connecting doesn't seem to be working here. using host machine's ip with port forwarding works.
   config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)', ip: "192.168.1.223"
+
+#host 192.168.1.57
+  config.vm.network "forwarded_port", guest: 12345, host: 12345
+  config.vm.network "forwarded_port", guest: 8087, host: 8087
+
+
+
 
   # Increase memory for Virtualbox
   config.vm.provider "virtualbox" do |vb|
@@ -25,6 +33,8 @@ end
 
 Vagrant.configure("2") do |config|
   # other config here
+    config.vm.synced_folder "./../startup", "/startup"
+
 
 #I think this synced folder might work okay it is just that the third party libraries have to recompile each time. It is hard to get an accurate measurement.
 #Should have a master branch and develop branch.
