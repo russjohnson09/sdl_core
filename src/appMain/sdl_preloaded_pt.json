@@ -203,7 +203,7 @@
                         "FULL",
                         "LIMITED",
                         "NONE"]
-                    },                    
+                    },
                     "RegisterAppInterface": {
                         "hmi_levels": ["BACKGROUND",
                         "FULL",
