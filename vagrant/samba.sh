@@ -51,9 +51,9 @@ On mac any networked drives will be on /Volumes/
 
 
 #https://linuxize.com/post/how-to-install-and-configure-samba-on-ubuntu-18-04/#connecting-to-a-samba-share-from-linux
-sudo apt install smbclient
+#sudo apt install smbclient
 
-smbclient //127.0.0.1/build_dev -U vagrant
+#smbclient //127.0.0.1/build_dev -U vagrant
 
 
 
@@ -65,8 +65,8 @@ smbclient //127.0.0.1/build_dev -U vagrant
 
 
 
-smbclient //127.0.0.1/build_dev -U vagrant
+#smbclient //127.0.0.1/build_dev -U vagrant
 
 
 
-brew install smbclient
+#brew install smbclient
