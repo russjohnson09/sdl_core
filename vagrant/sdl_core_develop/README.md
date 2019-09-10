@@ -61,7 +61,7 @@ git checkout russ/vagrant-develop
 git pull
 
 
-##Make and install
+##Make **and install
 cd cd /core/build
 make
 make install
