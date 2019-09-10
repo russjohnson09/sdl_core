@@ -2536,6 +2536,7 @@
         },
         "app_policies": {
             "default": {
+                "allow_unkown_rpc_passthrough": true,
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",
@@ -2565,6 +2566,7 @@
                 }
             },
             "device": {
+                "allow_unkown_rpc_passthrough": true,
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",
@@ -2572,6 +2574,7 @@
                 "groups": ["DataConsent-2"]
             },
             "pre_DataConsent": {
+                "allow_unkown_rpc_passthrough": true,
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",
