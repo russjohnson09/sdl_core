@@ -33,8 +33,7 @@
                 "COMMUNICATION": 6,
                 "NORMAL": 4,
                 "NONE": 0
-            },
-            "lock_screen_dismissal_enabled": true
+            }
         },
         "functional_groupings": {
             "Base-4": {
@@ -48,9 +47,6 @@
                         "hmi_levels": ["BACKGROUND",
                             "FULL",
                             "LIMITED"]
-                    },
-                    "ShowAppMenu": {
-                        "hmi_levels": ["FULL"]
                     },
                     "Alert": {
                         "hmi_levels": ["FULL",
@@ -275,18 +271,6 @@
                         "hmi_levels": ["BACKGROUND",
                             "FULL",
                             "LIMITED"]
-                    },
-                    "CancelInteraction": {
-                        "hmi_levels": ["BACKGROUND",
-                            "FULL",
-                            "LIMITED"]
-                    },
-                    "CloseApplication": {
-                        "hmi_levels": [
-                            "FULL",
-                            "LIMITED",
-                            "BACKGROUND"
-                        ]
                     }
                 }
             },
@@ -615,14 +599,6 @@
                             "NONE"
                         ]
                     },
-                    "UnpublishAppService": {
-                        "hmi_levels": [
-                            "FULL",
-                            "LIMITED",
-                            "BACKGROUND",
-                            "NONE"
-                        ]
-                    },
                     "GetAppServiceData": {
                         "hmi_levels": [
                             "FULL",
@@ -791,9 +767,6 @@
                         "hmi_levels": ["BACKGROUND",
                             "FULL",
                             "LIMITED"]
-                    },
-                    "ShowAppMenu": {
-                        "hmi_levels": ["FULL"]
                     },
                     "Alert": {
                         "hmi_levels": ["FULL",
@@ -1936,13 +1909,6 @@
                         "zh-tw": {
                             "tts": "應用程式可存取車輛的GPS和速度。",
                             "label": "GPS和車速"
-                        }
-                    }
-                },
-                "LockScreenDismissalWarning":{
-                    "languages":{
-                        "en-us":{
-                            "textBody": "Swipe down to dismiss, acknowledging that you are not the driver"
                         }
                     }
                 },
