@@ -27,11 +27,18 @@ rm /core/build/bin/storage -R
 
 
 #Check Samba
+sudo service smbd restart
+sudo service smbd status
 sudo service samaba status
 cat /etc/samba/smb.conf 
 
 ##Connect To Samba
-192.168.1.223
+smb://192.168.1.223
+
+login as guest
+
+/core/build/bin/storage/policy.sqlite
+
 
 build_dev
 vagrant:vagrant
