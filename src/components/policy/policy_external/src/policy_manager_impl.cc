@@ -52,11 +52,14 @@
 
 #include "policy/access_remote.h"
 #include "policy/access_remote_impl.h"
+#include "utils/timer_task_impl.h"
 
-policy::PolicyManager* CreateManager() {
+__attribute__((visibility("default"))) policy::PolicyManager* CreateManager() {
   return new policy::PolicyManagerImpl();
 }
-void DeleteManager(policy::PolicyManager* pm) {
+
+__attribute__((visibility("default"))) void DeleteManager(
+    policy::PolicyManager* pm) {
   delete pm;
 }
 namespace {
@@ -218,7 +221,8 @@ PolicyManagerImpl::PolicyManagerImpl()
     , retry_sequence_timeout_(60)
     , retry_sequence_index_(0)
     , ignition_check(true)
-    , retry_sequence_url_(0, 0, "") {}
+    , retry_sequence_url_(0, 0, "")
+    , is_ptu_in_progress_(false) {}
 
 PolicyManagerImpl::PolicyManagerImpl(bool in_memory)
     : PolicyManager()
@@ -232,7 +236,8 @@ PolicyManagerImpl::PolicyManagerImpl(bool in_memory)
     , retry_sequence_url_(0, 0, "")
     , wrong_ptu_update_received_(false)
     , send_on_update_sent_out_(false)
-    , trigger_ptu_(false) {}
+    , trigger_ptu_(false)
+    , is_ptu_in_progress_(false) {}
 
 void PolicyManagerImpl::set_listener(PolicyListener* listener) {
   listener_ = listener;
@@ -297,7 +302,9 @@ void FilterInvalidFunctions(policy_table::Rpc& rpcs) {
  * schema
  * @param rpc_parameters parameters to filter
  */
-void FilterInvalidRPCParameters(policy_table::RpcParameters& rpc_parameters) {
+void FilterInvalidRPCParameters(
+    policy_table::RpcParameters& rpc_parameters,
+    const std::vector<policy_table::VehicleDataItem>& vehicle_data_items) {
   policy_table::HmiLevels valid_hmi_levels;
   for (const auto& hmi_level : rpc_parameters.hmi_levels) {
     if (hmi_level.is_valid()) {
@@ -306,10 +313,31 @@ void FilterInvalidRPCParameters(policy_table::RpcParameters& rpc_parameters) {
   }
   rpc_parameters.hmi_levels.swap(valid_hmi_levels);
 
+  auto ParamExists =
+      [&vehicle_data_items](const rpc::String<0, 255>& param_name) {
+        policy_table::Parameter parameter_enum;
+        if (policy_table::EnumFromJsonString(param_name, &parameter_enum)) {
+          return true;
+        }
+
+        // In case when this collection is empty that means collection is not
+        // initialized
+        if (vehicle_data_items.empty()) {
+          return false;
+        }
+
+        for (const auto& vdi : vehicle_data_items) {
+          if (param_name == vdi.name) {
+            return true;
+          }
+        }
+        return false;
+      };
+
   policy_table::Parameters valid_params;
   const policy_table::Parameters& params = *(rpc_parameters.parameters);
   for (const auto& param : params) {
-    if (param.is_valid()) {
+    if (param.is_valid() && ParamExists(param)) {
       valid_params.push_back(param);
     }
   }
@@ -399,7 +427,9 @@ void FilterInvalidApplicationParameters(
  * @brief FilterPolicyTable filter values that not present in schema
  * @param pt policy table to filter
  */
-void FilterPolicyTable(policy_table::PolicyTable& pt) {
+void FilterPolicyTable(
+    policy_table::PolicyTable& pt,
+    const std::vector<policy_table::VehicleDataItem>& current_vd_items) {
   policy_table::ModuleConfig& module_config = pt.module_config;
   if (module_config.is_initialized() &&
       module_config.notifications_per_minute_by_priority.is_initialized()) {
@@ -418,8 +448,18 @@ void FilterPolicyTable(policy_table::PolicyTable& pt) {
     policy_table::Rpc& rpcs = group.second.rpcs;
     FilterInvalidFunctions(rpcs);
 
+    policy_table::VehicleDataItems vehicle_data_items;
+
+    if (!pt.vehicle_data->struct_empty()) {
+      vehicle_data_items =
+          pt.vehicle_data.is_initialized() &&
+                  pt.vehicle_data->schema_items.is_initialized()
+              ? *pt.vehicle_data->schema_items
+              : current_vd_items;
+    }
+
     for (auto& func : rpcs) {
-      FilterInvalidRPCParameters(func.second);
+      FilterInvalidRPCParameters(func.second, vehicle_data_items);
     }
   }
 }
@@ -440,7 +480,9 @@ bool PolicyManagerImpl::LoadPT(const std::string& file,
   }
 
   file_system::DeleteFile(file);
-  FilterPolicyTable(pt_update->policy_table);
+  auto current_vd_items = GetVehicleDataItems();
+
+  FilterPolicyTable(pt_update->policy_table, current_vd_items);
   if (!IsPTValid(pt_update, policy_table::PT_UPDATE)) {
     wrong_ptu_update_received_ = true;
     update_status_manager_.OnWrongUpdateReceived();
@@ -526,7 +568,7 @@ bool PolicyManagerImpl::LoadPT(const std::string& file,
 CheckAppPolicyResults PolicyManagerImpl::CheckPermissionsChanges(
     const std::shared_ptr<policy_table::Table> pt_update,
     const std::shared_ptr<policy_table::Table> snapshot) {
-  LOG4CXX_INFO(logger_, "Checking incoming permissions.");
+  LOG4CXX_AUTO_TRACE(logger_);
 
   // Replace predefined policies with its actual setting, e.g. "123":"default"
   // to actual values of default section
@@ -565,33 +607,35 @@ void PolicyManagerImpl::ProcessAppPolicyCheckResults(
 void PolicyManagerImpl::ProcessActionsForAppPolicies(
     const ApplicationsPoliciesActions& actions,
     const policy_table::ApplicationPolicies& app_policies) {
-  ApplicationsPoliciesActions::const_iterator it_actions = actions.begin();
-  for (; it_actions != actions.end(); ++it_actions) {
-    policy_table::ApplicationPolicies::const_iterator app_policy =
-        app_policies.find(it_actions->first);
+  for (const auto& action : actions) {
+    const auto& app_policy = app_policies.find(action.first);
     if (app_policies.end() == app_policy) {
       continue;
     }
 
-    if (it_actions->second.is_consent_needed) {
-      // Post-check after ExternalConsent consent changes
-      const std::string& policy_app_id = app_policy->first;
-      if (!IsConsentNeeded(policy_app_id)) {
-        sync_primitives::AutoLock lock(app_permissions_diff_lock_);
+    const auto devices_ids = listener()->GetDevicesIds(app_policy->first);
+    for (const auto& device_id : devices_ids) {
+      if (action.second.is_consent_needed) {
+        // Post-check after ExternalConsent consent changes
+        const auto& policy_app_id = app_policy->first;
+        if (!IsConsentNeeded(device_id, policy_app_id)) {
+          sync_primitives::AutoLock lock(app_permissions_diff_lock_);
 
-        PendingPermissions::iterator app_id_diff =
-            app_permissions_diff_.find(policy_app_id);
+          const auto& app_id_diff = app_permissions_diff_.find(policy_app_id);
 
-        if (app_permissions_diff_.end() != app_id_diff) {
-          app_id_diff->second.appPermissionsConsentNeeded = false;
+          if (app_permissions_diff_.end() != app_id_diff) {
+            app_id_diff->second.appPermissionsConsentNeeded = false;
+          }
         }
       }
-    }
-    if (it_actions->second.is_notify_system) {
-      NotifySystem(*app_policy);
-    }
-    if (it_actions->second.is_send_permissions_to_app) {
-      SendPermissionsToApp(*app_policy);
+
+      if (action.second.is_notify_system) {
+        NotifySystem(device_id, *app_policy);
+      }
+
+      if (action.second.is_send_permissions_to_app) {
+        SendPermissionsToApp(device_id, *app_policy);
+      }
     }
   }
 }
@@ -715,10 +759,11 @@ void PolicyManagerImpl::OnAppsSearchCompleted(const bool trigger_ptu) {
 }
 
 const std::vector<std::string> PolicyManagerImpl::GetAppRequestTypes(
+    const transport_manager::DeviceHandle& device_handle,
     const std::string policy_app_id) const {
   std::vector<std::string> request_types;
-  if (kDeviceDisallowed ==
-      cache_->GetDeviceConsent(GetCurrentDeviceId(policy_app_id))) {
+  if (kDeviceAllowed != cache_->GetDeviceConsent(
+                            GetCurrentDeviceId(device_handle, policy_app_id))) {
     cache_->GetAppRequestTypes(kPreDataConsentId, request_types);
   } else {
     cache_->GetAppRequestTypes(policy_app_id, request_types);
@@ -745,8 +790,13 @@ const std::vector<std::string> PolicyManagerImpl::GetAppRequestSubTypes(
   return request_subtypes;
 }
 
-const VehicleInfo PolicyManagerImpl::GetVehicleInfo() const {
-  return cache_->GetVehicleInfo();
+const std::vector<policy_table::VehicleDataItem>
+PolicyManagerImpl::GetVehicleDataItems() const {
+  return cache_->GetVehicleDataItems();
+}
+
+Json::Value PolicyManagerImpl::GetPolicyTableData() const {
+  return cache_->GetPolicyTableData();
 }
 
 void PolicyManagerImpl::GetEnabledCloudApps(
@@ -818,7 +868,8 @@ bool PolicyManagerImpl::UnknownRPCPassthroughAllowed(
   return cache_->UnknownRPCPassthroughAllowed(policy_app_id);
 }
 
-void PolicyManagerImpl::CheckPermissions(const PTString& app_id,
+void PolicyManagerImpl::CheckPermissions(const PTString& device_id,
+                                         const PTString& app_id,
                                          const PTString& hmi_level,
                                          const PTString& rpc,
                                          const RPCParams& rpc_params,
@@ -826,8 +877,6 @@ void PolicyManagerImpl::CheckPermissions(const PTString& app_id,
   LOG4CXX_INFO(logger_,
                "CheckPermissions for " << app_id << " and rpc " << rpc
                                        << " for " << hmi_level << " level.");
-
-  const std::string device_id = GetCurrentDeviceId(app_id);
 
   Permissions rpc_permissions;
 
@@ -979,7 +1028,12 @@ void PolicyManagerImpl::CheckPermissions(const PTString& app_id,
     result.hmi_level_permitted = kRpcUserDisallowed;
   } else if (!result.IsAnyAllowed(rpc_params)) {
     LOG4CXX_DEBUG(logger_, "There are no parameters allowed.");
-    result.hmi_level_permitted = kRpcDisallowed;
+
+    if (!result.list_of_undefined_params.empty()) {
+      result.hmi_level_permitted = kRpcAllowed;
+    } else {
+      result.hmi_level_permitted = kRpcDisallowed;
+    }
   }
 }
 
@@ -998,9 +1052,8 @@ policy_table::Strings PolicyManagerImpl::GetGroupsNames(
 }
 
 void PolicyManagerImpl::SendNotificationOnPermissionsUpdated(
-    const std::string& application_id) {
+    const std::string& device_id, const std::string& application_id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  const std::string device_id = GetCurrentDeviceId(application_id);
   if (device_id.empty()) {
     LOG4CXX_WARN(logger_,
                  "Couldn't find device info for application id "
@@ -1028,15 +1081,16 @@ void PolicyManagerImpl::SendNotificationOnPermissionsUpdated(
 
   const ApplicationOnDevice who = {device_id, application_id};
   if (access_remote_->IsAppRemoteControl(who)) {
-    listener()->OnPermissionsUpdated(application_id, notification_data);
+    listener()->OnPermissionsUpdated(
+        device_id, application_id, notification_data);
     return;
   }
 
   std::string default_hmi;
-  GetDefaultHmi(application_id, &default_hmi);
+  GetDefaultHmi(device_id, application_id, &default_hmi);
 
   listener()->OnPermissionsUpdated(
-      application_id, notification_data, default_hmi);
+      device_id, application_id, notification_data, default_hmi);
 }
 
 bool PolicyManagerImpl::CleanupUnpairedDevices() {
@@ -1069,14 +1123,18 @@ void PolicyManagerImpl::SetUserConsentForDevice(const std::string& device_id,
 }
 
 bool PolicyManagerImpl::ReactOnUserDevConsentForApp(
-    const std::string& app_id, const bool is_device_allowed) {
-  std::vector<std::string> current_request_types = GetAppRequestTypes(app_id);
+    const transport_manager::DeviceHandle& device_handle,
+    const std::string& app_id,
+    const bool is_device_allowed) {
+  std::vector<std::string> current_request_types =
+      GetAppRequestTypes(device_handle, app_id);
   std::string current_priority, new_priority;
   GetPriority(app_id, &current_priority);
 
   bool result = cache_->ReactOnUserDevConsentForApp(app_id, is_device_allowed);
 
-  std::vector<std::string> new_request_types = GetAppRequestTypes(app_id);
+  std::vector<std::string> new_request_types =
+      GetAppRequestTypes(device_handle, app_id);
   GetPriority(app_id, &new_priority);
   std::sort(current_request_types.begin(), current_request_types.end());
   std::sort(new_request_types.begin(), new_request_types.end());
@@ -1101,7 +1159,8 @@ bool PolicyManagerImpl::ReactOnUserDevConsentForApp(
   }
 
   if (permissions.requestTypeChanged || (!permissions.priority.empty())) {
-    listener_->SendOnAppPermissionsChanged(permissions, app_id);
+    const auto& device_id = GetCurrentDeviceId(device_handle, app_id);
+    listener_->SendOnAppPermissionsChanged(permissions, device_id, app_id);
   }
   return result;
 }
@@ -1219,6 +1278,7 @@ void PolicyManagerImpl::CheckPendingPermissionsChanges(
 }
 
 void PolicyManagerImpl::NotifyPermissionsChanges(
+    const std::string& device_id,
     const std::string& policy_app_id,
     const std::vector<FunctionalGroupPermission>& app_group_permissions) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -1234,7 +1294,7 @@ void PolicyManagerImpl::NotifyPermissionsChanges(
   PrepareNotificationData(
       functional_groups, app_groups, app_group_permissions, notification_data);
 
-  listener()->OnPermissionsUpdated(policy_app_id, notification_data);
+  listener()->OnPermissionsUpdated(device_id, policy_app_id, notification_data);
 }
 
 void PolicyManagerImpl::SetUserConsentForApp(
@@ -1273,14 +1333,51 @@ void PolicyManagerImpl::SetUserConsentForApp(
   CheckPendingPermissionsChanges(verified_permissions.policy_app_id,
                                  updated_app_group_permissons);
 
-  NotifyPermissionsChanges(verified_permissions.policy_app_id,
+  NotifyPermissionsChanges(verified_permissions.device_id,
+                           verified_permissions.policy_app_id,
                            updated_app_group_permissons);
 }
 
-bool PolicyManagerImpl::GetDefaultHmi(const std::string& policy_app_id,
+bool PolicyManagerImpl::IsAllowedRetryCountExceeded() const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  sync_primitives::AutoLock auto_lock(retry_sequence_lock_);
+
+  return retry_sequence_index_ > retry_sequence_seconds_.size();
+}
+
+void PolicyManagerImpl::IncrementRetryIndex() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  sync_primitives::AutoLock auto_lock(retry_sequence_lock_);
+
+  if (!is_ptu_in_progress_) {
+    LOG4CXX_TRACE(logger_,
+                  "First PTU iteration, skipping incrementing retry index");
+    is_ptu_in_progress_ = true;
+    return;
+  }
+
+  ++retry_sequence_index_;
+  LOG4CXX_DEBUG(logger_,
+                "current retry_sequence_index_ is: " << retry_sequence_index_);
+}
+
+void PolicyManagerImpl::RetrySequenceFailed() {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  listener_->OnPTUFinished(false);
+  ResetRetrySequence(ResetRetryCountType::kResetWithStatusUpdate);
+}
+
+void PolicyManagerImpl::OnSystemRequestReceived() {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  IncrementRetryIndex();
+}
+
+bool PolicyManagerImpl::GetDefaultHmi(const std::string& device_id,
+                                      const std::string& policy_app_id,
                                       std::string* default_hmi) const {
   LOG4CXX_AUTO_TRACE(logger_);
-  const std::string device_id = GetCurrentDeviceId(policy_app_id);
   DeviceConsent device_consent = GetUserConsentForDevice(device_id);
   const std::string app_id = policy::kDeviceAllowed != device_consent
                                  ? kPreDataConsentId
@@ -1385,11 +1482,13 @@ void PolicyManagerImpl::GetPermissionsForApp(
   }
 
   bool allowed_by_default = false;
-  if (cache_->IsDefaultPolicy(policy_app_id)) {
+  const auto device_consent = GetUserConsentForDevice(device_id);
+  if ((policy::kDeviceAllowed == device_consent) &&
+      cache_->IsDefaultPolicy(policy_app_id)) {
     app_id_to_check = kDefaultId;
     allowed_by_default = true;
   } else if (cache_->IsPredataPolicy(policy_app_id) ||
-             policy::kDeviceDisallowed == GetUserConsentForDevice(device_id)) {
+             policy::kDeviceAllowed != device_consent) {
     app_id_to_check = kPreDataConsentId;
     allowed_by_default = true;
   }
@@ -1473,9 +1572,11 @@ void PolicyManagerImpl::GetPermissionsForApp(
 }
 
 std::string& PolicyManagerImpl::GetCurrentDeviceId(
+    const transport_manager::DeviceHandle& device_handle,
     const std::string& policy_app_id) const {
   LOG4CXX_INFO(logger_, "GetDeviceInfo");
-  last_device_id_ = listener()->OnCurrentDeviceIdUpdateRequired(policy_app_id);
+  last_device_id_ =
+      listener()->OnCurrentDeviceIdUpdateRequired(device_handle, policy_app_id);
   return last_device_id_;
 }
 
@@ -1579,15 +1680,16 @@ void PolicyManagerImpl::UpdateAppConsentWithExternalConsent(
 }
 
 void PolicyManagerImpl::NotifySystem(
+    const std::string& device_id,
     const PolicyManagerImpl::AppPoliciesValueType& app_policy) const {
-  listener()->OnPendingPermissionChange(app_policy.first);
+  listener()->OnPendingPermissionChange(device_id, app_policy.first);
 }
 
 void PolicyManagerImpl::SendPermissionsToApp(
+    const std::string& device_id,
     const PolicyManagerImpl::AppPoliciesValueType& app_policy) {
   const std::string app_id = app_policy.first;
 
-  const std::string device_id = GetCurrentDeviceId(app_id);
   if (device_id.empty()) {
     LOG4CXX_WARN(logger_,
                  "Couldn't find device info for application id: " << app_id);
@@ -1610,6 +1712,7 @@ void PolicyManagerImpl::SendPermissionsToApp(
 
   LOG4CXX_INFO(logger_, "Send notification for application_id: " << app_id);
   listener()->OnPermissionsUpdated(
+      device_id,
       app_id,
       notification_data,
       policy_table::EnumToJsonString(app_policy.second.default_hmi));
@@ -1789,10 +1892,11 @@ int PolicyManagerImpl::NextRetryTimeout() {
   sync_primitives::AutoLock auto_lock(retry_sequence_lock_);
   LOG4CXX_DEBUG(logger_, "Index: " << retry_sequence_index_);
   int next = 0;
+
   if (!retry_sequence_seconds_.empty() &&
       retry_sequence_index_ < retry_sequence_seconds_.size()) {
-    next = retry_sequence_seconds_[retry_sequence_index_];
-    ++retry_sequence_index_;
+    next = retry_sequence_seconds_[retry_sequence_index_] *
+           date_time::MILLISECONDS_IN_SECOND;
   }
   return next;
 }
@@ -1804,10 +1908,15 @@ void PolicyManagerImpl::RefreshRetrySequence() {
   cache_->SecondsBetweenRetries(retry_sequence_seconds_);
 }
 
-void PolicyManagerImpl::ResetRetrySequence() {
+void PolicyManagerImpl::ResetRetrySequence(
+    const ResetRetryCountType reset_type) {
+  LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock auto_lock(retry_sequence_lock_);
   retry_sequence_index_ = 0;
-  update_status_manager_.OnResetRetrySequence();
+  is_ptu_in_progress_ = false;
+  if (ResetRetryCountType::kResetWithStatusUpdate == reset_type) {
+    update_status_manager_.OnResetRetrySequence();
+  }
 }
 
 uint32_t PolicyManagerImpl::TimeoutExchangeMSec() {
@@ -1820,6 +1929,8 @@ const std::vector<int> PolicyManagerImpl::RetrySequenceDelaysSeconds() {
 }
 
 void PolicyManagerImpl::OnExceededTimeout() {
+  LOG4CXX_AUTO_TRACE(logger_);
+
   update_status_manager_.OnUpdateTimeoutOccurs();
 }
 
@@ -1870,10 +1981,10 @@ bool PolicyManagerImpl::IsApplicationRevoked(const std::string& app_id) const {
   return cache_->IsApplicationRevoked(app_id);
 }
 
-bool PolicyManagerImpl::IsConsentNeeded(const std::string& app_id) {
+bool PolicyManagerImpl::IsConsentNeeded(const std::string& device_id,
+                                        const std::string& app_id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  const std::string device_id = GetCurrentDeviceId(app_id);
-  int count = cache_->CountUnconsentedGroups(app_id, device_id);
+  const int count = cache_->CountUnconsentedGroups(app_id, device_id);
   LOG4CXX_DEBUG(logger_, "There are: " << count << " unconsented groups.");
   return count != 0;
 }
@@ -1883,7 +1994,7 @@ void PolicyManagerImpl::SetVINValue(const std::string& value) {
 }
 
 AppPermissions PolicyManagerImpl::GetAppPermissionsChanges(
-    const std::string& policy_app_id) {
+    const std::string& device_id, const std::string& policy_app_id) {
   PendingPermissions::iterator app_id_diff =
       app_permissions_diff_.find(policy_app_id);
 
@@ -1892,7 +2003,8 @@ AppPermissions PolicyManagerImpl::GetAppPermissionsChanges(
   if (app_permissions_diff_.end() != app_id_diff) {
     permissions = app_id_diff->second;
   } else {
-    permissions.appPermissionsConsentNeeded = IsConsentNeeded(policy_app_id);
+    permissions.appPermissionsConsentNeeded =
+        IsConsentNeeded(device_id, policy_app_id);
     permissions.appRevoked = IsApplicationRevoked(policy_app_id);
     GetPriority(permissions.application_id, &permissions.priority);
   }
@@ -1921,9 +2033,9 @@ void PolicyManagerImpl::MarkUnpairedDevice(const std::string& device_id) {
 }
 
 void PolicyManagerImpl::OnAppRegisteredOnMobile(
-    const std::string& application_id) {
+    const std::string& device_id, const std::string& application_id) {
   StartPTExchange();
-  SendNotificationOnPermissionsUpdated(application_id);
+  SendNotificationOnPermissionsUpdated(device_id, application_id);
 }
 
 void PolicyManagerImpl::OnDeviceSwitching(const std::string& device_id_from,
@@ -2012,20 +2124,23 @@ class CallStatusChange : public utils::Callable {
 };
 
 StatusNotifier PolicyManagerImpl::AddApplication(
+    const std::string& device_id,
     const std::string& application_id,
     const rpc::policy_table_interface_base::AppHmiTypes& hmi_types) {
   LOG4CXX_AUTO_TRACE(logger_);
-  const std::string device_id = GetCurrentDeviceId(application_id);
-  DeviceConsent device_consent = GetUserConsentForDevice(device_id);
+  auto device_consent = GetUserConsentForDevice(device_id);
+  LOG4CXX_DEBUG(logger_,
+                "check_device_id: " << device_id << " check_device_consent: "
+                                    << device_consent);
   sync_primitives::AutoLock lock(apps_registration_lock_);
   if (IsNewApplication(application_id)) {
     LOG4CXX_DEBUG(logger_, "Adding new application");
-    AddNewApplication(application_id, device_consent);
+    AddNewApplication(device_id, application_id, device_consent);
     return std::make_shared<CallStatusChange>(update_status_manager_,
                                               device_consent);
   }
   LOG4CXX_DEBUG(logger_, "Promote existed application");
-  PromoteExistedApplication(application_id, device_consent);
+  PromoteExistedApplication(device_id, application_id, device_consent);
   update_status_manager_.OnExistedApplicationAdded(cache_->UpdateRequired());
   return std::make_shared<utils::CallNothing>();
 }
@@ -2042,6 +2157,7 @@ bool PolicyManagerImpl::IsPredataPolicy(
 }
 
 void PolicyManagerImpl::ProcessExternalConsentStatusForApp(
+    const std::string& device_id,
     const std::string& application_id,
     const ConsentProcessingPolicy processing_policy) {
   ExternalConsentStatus status = cache_->GetExternalConsentStatus();
@@ -2053,7 +2169,7 @@ void PolicyManagerImpl::ProcessExternalConsentStatusForApp(
   CalculateGroupsConsentFromExternalConsent(
       groups_by_status, allowed_groups, disallowed_groups);
 
-  const std::string device_id = GetCurrentDeviceId(application_id);
+  LOG4CXX_DEBUG(logger_, "check device_id: " << device_id);
   UpdateAppConsentWithExternalConsent(device_id,
                                       application_id,
                                       allowed_groups,
@@ -2061,7 +2177,8 @@ void PolicyManagerImpl::ProcessExternalConsentStatusForApp(
                                       processing_policy);
 }
 
-void PolicyManagerImpl::AddNewApplication(const std::string& application_id,
+void PolicyManagerImpl::AddNewApplication(const std::string& device_id,
+                                          const std::string& application_id,
                                           DeviceConsent device_consent) {
   LOG4CXX_AUTO_TRACE(logger_);
 
@@ -2081,19 +2198,31 @@ void PolicyManagerImpl::AddNewApplication(const std::string& application_id,
   }
 
   ProcessExternalConsentStatusForApp(
-      application_id, ConsentProcessingPolicy::kExternalConsentBased);
+      device_id,
+      application_id,
+      ConsentProcessingPolicy::kExternalConsentBased);
 }
 
 void PolicyManagerImpl::PromoteExistedApplication(
-    const std::string& application_id, DeviceConsent device_consent) {
+    const std::string& device_id,
+    const std::string& application_id,
+    DeviceConsent device_consent) {
   // If device consent changed to allowed during application being
   // disconnected, app permissions should be changed also
+  LOG4CXX_DEBUG(logger_,
+                "kDeviceAllowed == device_consent: "
+                    << (kDeviceAllowed == device_consent)
+                    << " device_consent: " << device_consent);
   if (kDeviceAllowed == device_consent &&
       cache_->IsPredataPolicy(application_id)) {
+    LOG4CXX_INFO(logger_,
+                 "Setting "
+                     << policy::kDefaultId
+                     << " permissions for application id: " << application_id);
     cache_->SetDefaultPolicy(application_id);
   }
-  ProcessExternalConsentStatusForApp(application_id,
-                                     ConsentProcessingPolicy::kTimestampBased);
+  ProcessExternalConsentStatusForApp(
+      device_id, application_id, ConsentProcessingPolicy::kTimestampBased);
 }
 
 bool PolicyManagerImpl::IsNewApplication(
@@ -2155,6 +2284,11 @@ uint32_t PolicyManagerImpl::HeartBeatTimeout(const std::string& app_id) const {
 }
 
 void PolicyManagerImpl::SaveUpdateStatusRequired(bool is_update_needed) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  if (!is_update_needed) {
+    ResetRetrySequence(ResetRetryCountType::kResetInternally);
+  }
   cache_->SaveUpdateRequired(is_update_needed);
 }
 
@@ -2173,10 +2307,12 @@ std::ostream& operator<<(std::ostream& output,
   return output;
 }
 
-void PolicyManagerImpl::SetDefaultHmiTypes(const std::string& application_id,
-                                           const std::vector<int>& hmi_types) {
+void PolicyManagerImpl::SetDefaultHmiTypes(
+    const transport_manager::DeviceHandle& device_handle,
+    const std::string& application_id,
+    const std::vector<int>& hmi_types) {
   LOG4CXX_INFO(logger_, "SetDefaultHmiTypes");
-  const std::string device_id = GetCurrentDeviceId(application_id);
+  const auto device_id = GetCurrentDeviceId(device_handle, application_id);
   ApplicationOnDevice who = {device_id, application_id};
   access_remote_->SetDefaultHmiTypes(who, hmi_types);
 }
@@ -2214,7 +2350,7 @@ bool PolicyManagerImpl::CheckModule(const PTString& app_id,
 
 void PolicyManagerImpl::SendHMILevelChanged(const ApplicationOnDevice& who) {
   std::string default_hmi("NONE");
-  if (GetDefaultHmi(who.app_id, &default_hmi)) {
+  if (GetDefaultHmi(who.dev_id, who.app_id, &default_hmi)) {
     listener()->OnUpdateHMIStatus(who.dev_id, who.app_id, default_hmi);
   } else {
     LOG4CXX_WARN(
@@ -2251,7 +2387,8 @@ void PolicyManagerImpl::SendAppPermissionsChanged(
     const std::string& device_id, const std::string& application_id) {
   Permissions notification_data;
   GetPermissions(device_id, application_id, &notification_data);
-  listener()->OnPermissionsUpdated(application_id, notification_data);
+  listener()->OnPermissionsUpdated(
+      device_id, application_id, notification_data);
 }
 
 void PolicyManagerImpl::SendAuthTokenUpdated(const std::string policy_app_id) {
@@ -2286,6 +2423,96 @@ bool PolicyManagerImpl::GetModuleTypes(
 void PolicyManagerImpl::set_access_remote(
     std::shared_ptr<AccessRemote> access_remote) {
   access_remote_ = access_remote;
+}
+
+bool PolicyManagerImpl::AppNeedEncryption(
+    const std::string& policy_app_id) const {
+  const auto encryption_required =
+      cache_->GetAppEncryptionRequiredFlag(policy_app_id);
+
+  return encryption_required.is_initialized() ? *encryption_required : true;
+}
+
+const rpc::Optional<rpc::Boolean> PolicyManagerImpl::GetAppEncryptionRequired(
+    const std::string& policy_app_id) const {
+  return cache_->GetAppEncryptionRequiredFlag(policy_app_id);
+}
+
+const std::vector<std::string> PolicyManagerImpl::GetFunctionalGroupsForApp(
+    const std::string& policy_app_id) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  using namespace rpc::policy_table_interface_base;
+  DCHECK(kDeviceId != policy_app_id);
+
+  std::vector<std::string> function_groups;
+
+  ApplicationParams app_params;
+  cache_->GetApplicationParams(policy_app_id, app_params);
+
+  const auto& policy_function_group = app_params.groups;
+
+  for (const auto& group : policy_function_group) {
+    function_groups.push_back(group);
+  }
+
+  return function_groups;
+}
+
+const std::vector<std::string> PolicyManagerImpl::GetApplicationPolicyIDs()
+    const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::vector<std::string> policy_app_ids;
+
+  const auto apps = cache_->GetPolicyAppIDs();
+
+  for (const auto& app : apps) {
+    policy_app_ids.push_back(app);
+  }
+
+  return policy_app_ids;
+}
+
+bool PolicyManagerImpl::FunctionGroupNeedEncryption(
+    const std::string& policy_group) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  FunctionalGroupings functional_groupings;
+  cache_->GetFunctionalGroupings(functional_groupings);
+
+  const auto& grouping_itr = functional_groupings.find(policy_group);
+
+  if (grouping_itr == functional_groupings.end()) {
+    LOG4CXX_WARN(logger_, "Group " << policy_group << " not found");
+    return false;
+  }
+
+  const auto& grouping = (*grouping_itr).second;
+
+  return grouping.encryption_required.is_initialized()
+             ? *grouping.encryption_required
+             : false;
+}
+
+const std::string PolicyManagerImpl::GetPolicyFunctionName(
+    const uint32_t function_id) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return policy_table::EnumToJsonString(
+      static_cast<policy_table::FunctionID>(function_id));
+}
+
+const std::vector<std::string> PolicyManagerImpl::GetRPCsForFunctionGroup(
+    const std::string& group) const {
+  std::vector<std::string> rpcs_for_group;
+
+  FunctionalGroupings functional_groupings;
+  cache_->GetFunctionalGroupings(functional_groupings);
+
+  const auto& rpcs = functional_groupings[group].rpcs;
+
+  for (const auto& rpc : rpcs) {
+    rpcs_for_group.push_back(rpc.first);
+  }
+
+  return rpcs_for_group;
 }
 
 }  //  namespace policy

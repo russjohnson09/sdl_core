@@ -194,6 +194,7 @@ class MediaManagerImplTest : public ::testing::Test {
                                            kProtocolVersion,
                                            data_sending,
                                            data_sending_size,
+                                           false,
                                            serviceType));
     media_manager_impl_->OnMessageReceived(raw_message_ptr);
     media_manager_impl_->OnMobileMessageSent(raw_message_ptr);
@@ -403,6 +404,8 @@ TEST_F(MediaManagerImplTest,
   const int32_t frame_number = 10;
   EXPECT_CALL(mock_protocol_handler,
               SendFramesNumber(kApplicationKey, frame_number));
+  EXPECT_CALL(app_mngr_, application(kConnectionKey))
+      .WillOnce(Return(mock_app_));
   media_manager_impl_->FramesProcessed(kApplicationKey, frame_number);
 }
 

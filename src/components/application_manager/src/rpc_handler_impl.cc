@@ -43,12 +43,14 @@ namespace formatters = ns_smart_device_link::ns_json_handler::formatters;
 namespace jhs = ns_smart_device_link::ns_json_handler::strings;
 namespace plugin_names = application_manager::plugin_manager::plugin_names;
 
-RPCHandlerImpl::RPCHandlerImpl(ApplicationManager& app_manager)
+RPCHandlerImpl::RPCHandlerImpl(ApplicationManager& app_manager,
+                               hmi_apis::HMI_API& hmi_so_factory,
+                               mobile_apis::MOBILE_API& mobile_so_factory)
     : app_manager_(app_manager)
     , messages_from_mobile_("AM FromMobile", this)
     , messages_from_hmi_("AM FromHMI", this)
-    , hmi_so_factory_(hmi_apis::HMI_API())
-    , mobile_so_factory_(mobile_apis::MOBILE_API())
+    , hmi_so_factory_(hmi_so_factory)
+    , mobile_so_factory_(mobile_so_factory)
 #ifdef TELEMETRY_MONITOR
     , metric_observer_(NULL)
 #endif  // TELEMETRY_MONITOR
@@ -159,23 +161,19 @@ void RPCHandlerImpl::ProcessMessageFromHMI(
   smart_objects::SmartObjectSPtr smart_object =
       std::make_shared<smart_objects::SmartObject>();
   bool allow_unknown_parameters = false;
-  if (!smart_object) {
-    LOG4CXX_ERROR(logger_, "Null pointer");
-    return;
-  }
 
   smart_objects::SmartObject converted_result;
   formatters::FormatterJsonRpc::FromString<hmi_apis::FunctionID::eType,
                                            hmi_apis::messageType::eType>(
       message->json_message(), converted_result);
 
+  const auto function_id = static_cast<int32_t>(
+      converted_result[jhs::S_PARAMS][jhs::S_FUNCTION_ID].asInt());
   if (app_manager_.GetRPCService().IsAppServiceRPC(
-          converted_result[jhs::S_PARAMS][jhs::S_FUNCTION_ID].asInt(),
-          commands::Command::SOURCE_HMI)) {
+          function_id, commands::Command::SOURCE_HMI)) {
     LOG4CXX_DEBUG(
         logger_,
-        "Allowing unknown parameters for request function "
-            << converted_result[jhs::S_PARAMS][jhs::S_FUNCTION_ID].asInt());
+        "Allowing unknown parameters for request function " << function_id);
     allow_unknown_parameters = true;
   }
 
@@ -198,6 +196,7 @@ void RPCHandlerImpl::ProcessMessageFromHMI(
     LOG4CXX_ERROR(logger_, "Received command didn't run successfully");
   }
 }
+
 void RPCHandlerImpl::Handle(const impl::MessageFromMobile message) {
   LOG4CXX_AUTO_TRACE(logger_);
 
@@ -406,7 +405,7 @@ bool RPCHandlerImpl::ConvertMessageToSO(
                     "Convertion result: "
                         << result << " function id "
                         << output[jhs::S_PARAMS][jhs::S_FUNCTION_ID].asInt());
-      if (!hmi_so_factory().attachSchema(output, false)) {
+      if (!hmi_so_factory().attachSchema(output, !allow_unknown_parameters)) {
         LOG4CXX_WARN(logger_, "Failed to attach schema to object.");
         return false;
       }
@@ -415,8 +414,9 @@ bool RPCHandlerImpl::ConvertMessageToSO(
 
       utils::SemanticVersion empty_version;
       if (validate_params &&
-          output.validate(&report, empty_version, allow_unknown_parameters) !=
-              smart_objects::errors::OK) {
+          smart_objects::errors::OK !=
+              output.validate(
+                  &report, empty_version, allow_unknown_parameters)) {
         LOG4CXX_ERROR(
             logger_,
             "Incorrect parameter from HMI - " << rpc::PrettyFormat(report));
@@ -472,6 +472,7 @@ bool RPCHandlerImpl::ConvertMessageToSO(
                        << message.protocol_version() << ".");
       return false;
   }
+  output[strings::params][strings::protection] = message.is_message_encrypted();
 
   LOG4CXX_DEBUG(logger_, "Successfully parsed message into smart object");
   return true;
@@ -513,6 +514,7 @@ std::shared_ptr<Message> RPCHandlerImpl::ConvertRawMsgToMessage(
   } else {
     LOG4CXX_ERROR(logger_, "Received invalid message");
   }
+
   return outgoing_message;
 }
 

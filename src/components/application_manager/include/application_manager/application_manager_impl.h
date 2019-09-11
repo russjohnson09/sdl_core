@@ -58,6 +58,8 @@
 #include "application_manager/rpc_service.h"
 #include "application_manager/state_controller_impl.h"
 
+#include "application_manager/rpc_handler.h"
+
 #include "application_manager/policies/policy_handler_interface.h"
 #include "application_manager/policies/policy_handler_observer.h"
 #include "connection_handler/connection_handler.h"
@@ -69,6 +71,7 @@
 #include "policies/policy_handler.h"
 #include "protocol_handler/protocol_handler.h"
 #include "protocol_handler/protocol_observer.h"
+#include "protocol_handler/service_status_update_handler_listener.h"
 
 #include "interfaces/HMI_API.h"
 #include "interfaces/HMI_API_schema.h"
@@ -132,7 +135,8 @@ typedef std::shared_ptr<timer::Timer> TimerSPtr;
 class ApplicationManagerImpl
     : public ApplicationManager,
       public connection_handler::ConnectionHandlerObserver,
-      public policy::PolicyHandlerObserver
+      public policy::PolicyHandlerObserver,
+      public protocol_handler::ServiceStatusUpdateHandlerListener
 #ifdef ENABLE_SECURITY
     ,
       public security_manager::SecurityManagerListener
@@ -202,9 +206,6 @@ class ApplicationManagerImpl
   void OnHMILevelChanged(uint32_t app_id,
                          mobile_apis::HMILevel::eType from,
                          mobile_apis::HMILevel::eType to) OVERRIDE;
-
-  void SendHMIStatusNotification(
-      const std::shared_ptr<Application> app) OVERRIDE;
 
   void SendDriverDistractionState(ApplicationSharedPtr application);
 
@@ -288,8 +289,7 @@ class ApplicationManagerImpl
    * @param vehicle_info Enum value of type of vehicle data
    * @param new value (for integer values currently) of vehicle data
    */
-  void IviInfoUpdated(mobile_apis::VehicleDataType::eType vehicle_info,
-                      int value) OVERRIDE;
+  void IviInfoUpdated(const std::string& vehicle_info, int value) OVERRIDE;
 
   void OnApplicationRegistered(ApplicationSharedPtr app) OVERRIDE;
 
@@ -476,6 +476,7 @@ class ApplicationManagerImpl
   /**
    * @brief CreateRegularState create regular HMI state for application
    * @param app Application
+   * @param window_type type of window
    * @param hmi_level of returned state
    * @param audio_state of returned state
    * @param system_context of returned state
@@ -483,16 +484,17 @@ class ApplicationManagerImpl
    */
   HmiStatePtr CreateRegularState(
       std::shared_ptr<Application> app,
-      mobile_apis::HMILevel::eType hmi_level,
-      mobile_apis::AudioStreamingState::eType audio_state,
-      mobile_apis::VideoStreamingState::eType video_state,
-      mobile_apis::SystemContext::eType system_context) const OVERRIDE;
+      const mobile_apis::WindowType::eType window_type,
+      const mobile_apis::HMILevel::eType hmi_level,
+      const mobile_apis::AudioStreamingState::eType audio_state,
+      const mobile_apis::VideoStreamingState::eType video_state,
+      const mobile_apis::SystemContext::eType system_context) const OVERRIDE;
 
   /**
    * @brief Checks, if given RPC is allowed at current HMI level for specific
    * application in policy table
    * @param app Application
-   * @param hmi_level Current HMI level of application
+   * @param window_id id of application's window
    * @param function_id FunctionID of RPC
    * @param params_permissions Permissions for RPC parameters (e.g.
    * SubscribeVehicleData) defined in policy table
@@ -500,6 +502,7 @@ class ApplicationManagerImpl
    */
   mobile_apis::Result::eType CheckPolicyPermissions(
       const ApplicationSharedPtr app,
+      const WindowID window_id,
       const std::string& function_id,
       const RPCParams& rpc_params,
       CommandParametersPermissions* params_permissions = NULL) OVERRIDE;
@@ -516,32 +519,6 @@ class ApplicationManagerImpl
    */
   bool IsApplicationForbidden(uint32_t connection_key,
                               const std::string& mobile_app_id);
-
-  struct ApplicationsAppIdSorter {
-    bool operator()(const ApplicationSharedPtr lhs,
-                    const ApplicationSharedPtr rhs) {
-      return lhs->app_id() < rhs->app_id();
-    }
-  };
-
-  struct ApplicationsMobileAppIdSorter {
-    bool operator()(const ApplicationSharedPtr lhs,
-                    const ApplicationSharedPtr rhs) {
-      if (lhs->policy_app_id() == rhs->policy_app_id()) {
-        return lhs->device() < rhs->device();
-      }
-      return lhs->policy_app_id() < rhs->policy_app_id();
-    }
-  };
-
-  // typedef for Applications list
-  typedef std::set<ApplicationSharedPtr, ApplicationsAppIdSorter> ApplictionSet;
-
-  // typedef for Applications list iterator
-  typedef ApplictionSet::iterator ApplictionSetIt;
-
-  // typedef for Applications list const iterator
-  typedef ApplictionSet::const_iterator ApplictionSetConstIt;
 
   /**
    * @brief Notification from PolicyHandler about PTU.
@@ -564,6 +541,52 @@ class ApplicationManagerImpl
    */
   void OnPTUFinished(const bool ptu_result) FINAL;
 
+#if defined(EXTERNAL_PROPRIETARY_MODE) && defined(ENABLE_SECURITY)
+  /**
+   * @brief OnCertDecryptFailed is called when certificate decryption fails in
+   * external flow
+   * @return since this callback is a part of SecurityManagerListener, bool
+   * return value is used to indicate whether listener instance can be deleted
+   * by calling entity. if true - listener can be deleted and removed from
+   * listeners by SecurityManager, false - listener retains its place within
+   * SecurityManager.
+   */
+  bool OnCertDecryptFailed() FINAL;
+
+  /**
+   * @brief OnCertDecryptFinished is called when certificate decryption is
+   * finished in the external flow
+   * @param decrypt_result bool value indicating whether decryption was
+   * successful
+   */
+  void OnCertDecryptFinished(const bool decrypt_result) FINAL;
+#endif
+
+  /**
+   * @brief OnPTUTimeoutExceeded is called on policy table update timed out
+   */
+  void OnPTUTimeoutExceeded() FINAL;
+
+  /**
+   *@brief ProcessServiceStatusUpdate callback that is invoked in case of
+   *service status update
+   *@param connection_key - connection key
+   *@param service_type enum value containing type of service.
+   *@param service_event enum value containing event that occured during service
+   *start.
+   *@param service_update_reason enum value containing reason why service_event
+   *occured.
+   **/
+  void ProcessServiceStatusUpdate(
+      const uint32_t connection_key,
+      hmi_apis::Common_ServiceType::eType service_type,
+      hmi_apis::Common_ServiceEvent::eType service_event,
+      utils::Optional<hmi_apis::Common_ServiceStatusUpdateReason::eType>
+          service_update_reason) FINAL;
+
+#ifdef ENABLE_SECURITY
+  bool OnPTUFailed() FINAL;
+#endif  // ENABLE_SECURITY
   /*
    * @brief Starts audio pass thru thread
    *
@@ -683,7 +706,7 @@ class ApplicationManagerImpl
    * @brief Notification about handshake failure
    * @return true on success notification handling or false otherwise
    */
-  bool OnHandshakeFailed() OVERRIDE;
+  bool OnGetSystemTimeFailed() OVERRIDE;
 
   /**
    * @brief Notification that certificate update is required.
@@ -1065,10 +1088,12 @@ class ApplicationManagerImpl
    * @brief IsAppInReconnectMode check if application belongs to session
    * affected by transport switching at the moment by checking internal
    * waiting list prepared on switching start
+   * @param device_id device identifier
    * @param policy_app_id Application id
    * @return True if application is in the waiting list, otherwise - false
    */
-  bool IsAppInReconnectMode(const std::string& policy_app_id) const FINAL;
+  bool IsAppInReconnectMode(const connection_handler::DeviceHandle& device_id,
+                            const std::string& policy_app_id) const FINAL;
 
   bool IsStopping() const OVERRIDE {
     return is_stopping_;
@@ -1452,8 +1477,8 @@ class ApplicationManagerImpl
   connection_handler::ConnectionHandler* connection_handler_;
   std::unique_ptr<policy::PolicyHandlerInterface> policy_handler_;
   protocol_handler::ProtocolHandler* protocol_handler_;
-  request_controller::RequestController request_ctrl_;
   std::unique_ptr<plugin_manager::RPCPluginManager> plugin_manager_;
+  request_controller::RequestController request_ctrl_;
   std::unique_ptr<application_manager::AppServiceManager> app_service_manager_;
 
   /**

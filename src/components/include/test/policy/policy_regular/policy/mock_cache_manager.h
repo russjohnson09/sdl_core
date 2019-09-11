@@ -62,7 +62,9 @@ class MockCacheManagerInterface : public CacheManagerInterface {
   MOCK_METHOD0(ResetIgnitionCycles, void());
   MOCK_METHOD0(TimeoutResponse, int());
   MOCK_METHOD1(SecondsBetweenRetries, bool(std::vector<int>& seconds));
-  MOCK_CONST_METHOD0(GetVehicleInfo, const VehicleInfo());
+  MOCK_CONST_METHOD0(GetPolicyTableData, Json::Value());
+  MOCK_CONST_METHOD0(GetVehicleDataItems,
+                     const std::vector<policy_table::VehicleDataItem>());
   MOCK_CONST_METHOD1(GetEnabledCloudApps,
                      void(std::vector<std::string>& enabled_apps));
   MOCK_CONST_METHOD7(GetCloudAppParameters,
@@ -258,6 +260,19 @@ class MockCacheManagerInterface : public CacheManagerInterface {
                      RequestType::State(const std::string& policy_app_id));
   MOCK_CONST_METHOD1(GetAppRequestSubTypesState,
                      RequestSubType::State(const std::string& policy_app_id));
+
+  MOCK_CONST_METHOD1(
+      GetAppEncryptionRequiredFlag,
+      rpc::Optional<rpc::Boolean>(const std::string& application_policy_name));
+
+  MOCK_CONST_METHOD1(
+      GetFunctionalGroupingEncryptionRequiredFlag,
+      rpc::Optional<rpc::Boolean>(const std::string& functional_group));
+
+  MOCK_CONST_METHOD2(GetApplicationParams,
+                     void(const std::string& application_name,
+                          policy_table::ApplicationParams& application_params));
+  MOCK_CONST_METHOD0(GetPolicyAppIDs, const policy_table::Strings());
 };
 
 }  // namespace policy_test

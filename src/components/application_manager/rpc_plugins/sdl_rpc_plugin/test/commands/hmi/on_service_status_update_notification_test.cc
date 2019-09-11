@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Ford Motor Company
+ * Copyright (c) 2019, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,59 +29,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include <stdint.h>
-#include <string>
 
-#include "application_manager/application.h"
-#include "application_manager/commands/command.h"
 #include "application_manager/commands/commands_test.h"
-#include "application_manager/commands/response_to_hmi.h"
+#include "application_manager/mock_application.h"
 #include "application_manager/mock_application_manager.h"
 #include "application_manager/smart_object_keys.h"
 #include "gtest/gtest.h"
-#include "hmi/get_urls_response.h"
+#include "hmi/on_service_update_notification.h"
 #include "smart_objects/smart_object.h"
 
 namespace test {
 namespace components {
 namespace commands_test {
 namespace hmi_commands_test {
-namespace get_urls_response {
+namespace on_service_update_notification {
 
-using ::testing::_;
-using ::testing::Return;
-namespace am = ::application_manager;
-namespace strings = ::application_manager::strings;
-using am::commands::CommandImpl;
-using am::commands::ResponseToHMI;
-using sdl_rpc_plugin::commands::GetUrlsResponse;
+using namespace application_manager;
+using sdl_rpc_plugin::commands::hmi::OnServiceUpdateNotification;
 
-typedef std::shared_ptr<ResponseToHMI> ResponseToHMIPtr;
+typedef std::shared_ptr<OnServiceUpdateNotification> NotificationPtr;
+typedef hmi_apis::Common_ServiceType::eType ServiceType;
+typedef hmi_apis::Common_ServiceEvent::eType ServiceEvent;
 
 namespace {
-const uint32_t kConnectionKey = 2u;
+const uint32_t kConnectionKey = 1232u;
+const uint32_t kHmi_app_id = 321u;
 }  // namespace
 
-class GetUrlResponseTest : public CommandsTest<CommandsTestMocks::kIsNice> {};
+class OnServiceUpdateNotificationTest
+    : public CommandsTest<CommandsTestMocks::kIsNice> {
+ public:
+  OnServiceUpdateNotificationTest()
+      : message_(CreateMessage(smart_objects::SmartType_Map)) {}
 
-TEST_F(GetUrlResponseTest, RUN_SendRequest_SUCCESS) {
-  MessageSharedPtr command_msg(CreateMessage(smart_objects::SmartType_Map));
-  (*command_msg)[strings::msg_params][strings::number] = "123";
-  (*command_msg)[strings::params][strings::connection_key] = kConnectionKey;
+ public:
+  MessageSharedPtr message_;
+  NotificationPtr command_;
+};
 
-  ResponseToHMIPtr command(CreateCommand<GetUrlsResponse>(command_msg));
-  EXPECT_CALL(mock_rpc_service_, SendMessageToHMI(command_msg));
+TEST_F(OnServiceUpdateNotificationTest, SendNotificationToHMI) {
+  (*message_)[strings::msg_params][hmi_notification::service_type] =
+      ServiceType::AUDIO;
+  (*message_)[strings::msg_params][hmi_notification::service_event] =
+      ServiceEvent::REQUEST_ACCEPTED;
+  (*message_)[strings::msg_params][strings::app_id] = kConnectionKey;
+  command_ = CreateCommand<OnServiceUpdateNotification>(message_);
 
-  command->Run();
+  EXPECT_CALL(mock_rpc_service_, SendMessageToHMI(message_)).Times(1);
 
-  EXPECT_EQ((*command_msg)[strings::params][strings::protocol_type].asInt(),
-            CommandImpl::hmi_protocol_type_);
-  EXPECT_EQ((*command_msg)[strings::params][strings::protocol_version].asInt(),
-            CommandImpl::protocol_version_);
+  auto mock_app = std::make_shared<NiceMock<MockApplication> >();
+
+  ON_CALL(app_mngr_, application(kConnectionKey))
+      .WillByDefault(Return(mock_app));
+
+  ON_CALL(*mock_app, hmi_app_id()).WillByDefault(Return(kHmi_app_id));
+
+  command_->Init();
+  command_->Run();
 }
 
-}  // namespace get_urls_response
+}  // namespace on_service_update_notification
 }  // namespace hmi_commands_test
 }  // namespace commands_test
 }  // namespace components

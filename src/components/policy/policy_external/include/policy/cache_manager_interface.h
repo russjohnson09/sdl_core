@@ -162,9 +162,17 @@ class CacheManagerInterface {
   virtual bool SecondsBetweenRetries(std::vector<int>& seconds) = 0;
 
   /**
-   * @brief Get information about vehicle
+   * @brief Gets copy of current policy table data
+   * @return policy_table as json object
    */
-  virtual const VehicleInfo GetVehicleInfo() const = 0;
+  virtual Json::Value GetPolicyTableData() const = 0;
+
+  /**
+   * @brief Gets vehicle data items
+   * @return Structure with vehicle data items
+   */
+  virtual const std::vector<policy_table::VehicleDataItem> GetVehicleDataItems()
+      const = 0;
 
   /**
    * @brief Get a list of enabled cloud applications
@@ -434,6 +442,12 @@ class CacheManagerInterface {
    */
   virtual bool GetFunctionalGroupings(
       policy_table::FunctionalGroupings& groups) = 0;
+
+  /**
+   * @brief Get policy app names from PT
+   * @return container of strings representing policy application names
+   */
+  virtual const policy_table::Strings GetPolicyAppIDs() const = 0;
 
   /**
    * Checks if the application is represented in policy table
@@ -953,6 +967,37 @@ class CacheManagerInterface {
    */
   virtual void OnDeviceSwitching(const std::string& device_id_from,
                                  const std::string& device_id_to) = 0;
+
+  /**
+   * @brief GetAppEncryptionRequiredFlag retrieves encryption required flag
+   * for
+   * given application
+   * @param application policy application name
+   * @return optional object containing encryption required flag
+   */
+  virtual rpc::Optional<rpc::Boolean> GetAppEncryptionRequiredFlag(
+      const std::string& application_policy_name) const = 0;
+
+  /**
+   * @brief GetFunctionalGroupingEncryptionRequiredFlag retrieves encryption
+   * required flag
+   * for
+   * given functional grouping
+   * @param functional_group policy functional group name
+   * @return optional object containing encryption required flag
+   */
+  virtual rpc::Optional<rpc::Boolean>
+  GetFunctionalGroupingEncryptionRequiredFlag(
+      const std::string& functional_group) const = 0;
+
+  /**
+   * @brief retreives application params
+   * @param application_name policy applicatoin name
+   * @param application_params application params
+   */
+  virtual void GetApplicationParams(
+      const std::string& application_name,
+      policy_table::ApplicationParams& application_params) const = 0;
 
 #ifdef BUILD_TESTS
   /**

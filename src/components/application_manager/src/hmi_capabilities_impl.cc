@@ -58,6 +58,7 @@ std::map<std::string, hmi_apis::Common_TextFieldName::eType>
     text_fields_enum_name;
 std::map<std::string, hmi_apis::Common_MediaClockFormat::eType>
     media_clock_enum_name;
+std::map<std::string, hmi_apis::Common_MenuLayout::eType> menu_layout_enum;
 std::map<std::string, hmi_apis::Common_ImageType::eType> image_type_enum;
 std::map<std::string, hmi_apis::Common_SamplingRate::eType> sampling_rate_enum;
 std::map<std::string, hmi_apis::Common_BitsPerSample::eType>
@@ -279,6 +280,11 @@ void InitCapabilities() {
       std::make_pair(std::string("CLOCKTEXT4"),
                      hmi_apis::Common_MediaClockFormat::CLOCKTEXT4));
 
+  menu_layout_enum.insert(
+      std::make_pair(std::string("LIST"), hmi_apis::Common_MenuLayout::LIST));
+  menu_layout_enum.insert(
+      std::make_pair(std::string("TILES"), hmi_apis::Common_MenuLayout::TILES));
+
   image_type_enum.insert(std::make_pair(std::string("STATIC"),
                                         hmi_apis::Common_ImageType::STATIC));
   image_type_enum.insert(std::make_pair(std::string("DYNAMIC"),
@@ -377,6 +383,8 @@ void InitCapabilities() {
       std::make_pair(std::string("MFD5"), hmi_apis::Common_DisplayType::MFD5));
   display_type_enum.insert(std::make_pair(
       std::string("GEN3_8_INCH"), hmi_apis::Common_DisplayType::GEN3_8_INCH));
+  display_type_enum.insert(std::make_pair(
+      std::string("SDL_GENERIC"), hmi_apis::Common_DisplayType::SDL_GENERIC));
 
   character_set_enum.insert(std::make_pair(
       std::string("TYPE2SET"), hmi_apis::Common_CharacterSet::TYPE2SET));
@@ -445,6 +453,7 @@ HMICapabilitiesImpl::HMICapabilitiesImpl(ApplicationManager& app_mngr)
     , phone_capability_(NULL)
     , video_streaming_capability_(NULL)
     , rc_capability_(NULL)
+    , seat_location_capability_(NULL)
     , app_mngr_(app_mngr)
     , hmi_language_handler_(app_mngr) {
   InitCapabilities();
@@ -608,6 +617,12 @@ void HMICapabilitiesImpl::set_display_capabilities(
   }
 }
 
+void HMICapabilitiesImpl::set_system_display_capabilities(
+    const smart_objects::SmartObject& display_capabilities) {
+  system_display_capabilities_.reset(
+      new smart_objects::SmartObject(display_capabilities));
+}
+
 void HMICapabilitiesImpl::set_hmi_zone_capabilities(
     const smart_objects::SmartObject& hmi_zone_capabilities) {
   if (hmi_zone_capabilities_) {
@@ -743,6 +758,15 @@ void HMICapabilitiesImpl::set_rc_capability(
   rc_capability_ = new smart_objects::SmartObject(rc_capability);
 }
 
+void HMICapabilitiesImpl::set_seat_location_capability(
+    const smart_objects::SmartObject& seat_location_capability) {
+  if (seat_location_capability_) {
+    delete seat_location_capability_;
+  }
+  seat_location_capability_ =
+      new smart_objects::SmartObject(seat_location_capability);
+}
+
 void HMICapabilitiesImpl::Init(resumption::LastState* last_state) {
   hmi_language_handler_.Init(last_state);
   if (false == load_capabilities_from_file()) {
@@ -796,6 +820,11 @@ const smart_objects::SmartObject* HMICapabilitiesImpl::tts_supported_languages()
 const smart_objects::SmartObject* HMICapabilitiesImpl::display_capabilities()
     const {
   return display_capabilities_;
+}
+
+const smart_objects::SmartObjectSPtr
+HMICapabilitiesImpl::system_display_capabilities() const {
+  return system_display_capabilities_;
 }
 
 const smart_objects::SmartObject* HMICapabilitiesImpl::hmi_zone_capabilities()
@@ -866,6 +895,26 @@ bool HMICapabilitiesImpl::rc_supported() const {
   return is_rc_supported_;
 }
 
+bool HMICapabilitiesImpl::menu_layout_supported(
+    mobile_apis::MenuLayout::eType layout) const {
+  if (!display_capabilities_ ||
+      !display_capabilities_->keyExists(strings::menu_layouts_available))
+    return false;
+
+  auto menu_layouts =
+      display_capabilities_->getElement(strings::menu_layouts_available);
+  if (menu_layouts.getType() == smart_objects::SmartType_Array) {
+    for (uint32_t i = 0; i < menu_layouts.length(); ++i) {
+      if (layout == static_cast<mobile_apis::MenuLayout::eType>(
+                        menu_layouts.getElement(i).asUInt())) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 const smart_objects::SmartObject* HMICapabilitiesImpl::navigation_capability()
     const {
   return navigation_capability_;
@@ -883,6 +932,11 @@ HMICapabilitiesImpl::video_streaming_capability() const {
 
 const smart_objects::SmartObject* HMICapabilitiesImpl::rc_capability() const {
   return rc_capability_;
+}
+
+const smart_objects::SmartObject*
+HMICapabilitiesImpl::seat_location_capability() const {
+  return seat_location_capability_;
 }
 
 bool HMICapabilitiesImpl::load_capabilities_from_file() {
@@ -1042,6 +1096,25 @@ bool HMICapabilitiesImpl::load_capabilities_from_file() {
         }
 
         if (display_capabilities_so.keyExists(
+                strings::menu_layouts_available)) {
+          smart_objects::SmartObject menu_layouts_available_enum(
+              smart_objects::SmartType_Array);
+          auto menu_layouts_available_array =
+              display_capabilities_so[strings::menu_layouts_available];
+          for (uint32_t i = 0, j = 0; i < menu_layouts_available_array.length();
+               ++i) {
+            auto it = menu_layout_enum.find(
+                menu_layouts_available_array[i].asString());
+            if (it != menu_layout_enum.end()) {
+              menu_layouts_available_enum[j++] = it->second;
+            }
+          }
+          display_capabilities_so.erase(strings::menu_layouts_available);
+          display_capabilities_so[strings::menu_layouts_available] =
+              menu_layouts_available_enum;
+        }
+
+        if (display_capabilities_so.keyExists(
                 hmi_response::image_capabilities)) {
           smart_objects::SmartObject& image_capabilities_array =
               display_capabilities_so[hmi_response::image_capabilities];
@@ -1066,27 +1139,16 @@ bool HMICapabilitiesImpl::load_capabilities_from_file() {
       if (check_existing_json_member(ui, "audioPassThruCapabilities")) {
         Json::Value audio_capabilities =
             ui.get("audioPassThruCapabilities", "");
-        smart_objects::SmartObject audio_capabilities_so =
-            smart_objects::SmartObject(smart_objects::SmartType_Array);
-        audio_capabilities_so =
-            smart_objects::SmartObject(smart_objects::SmartType_Map);
-        if (check_existing_json_member(audio_capabilities, "samplingRate")) {
-          audio_capabilities_so["samplingRate"] =
-              sampling_rate_enum
-                  .find(audio_capabilities.get("samplingRate", "").asString())
-                  ->second;
-        }
-        if (check_existing_json_member(audio_capabilities, "bitsPerSample")) {
-          audio_capabilities_so["bitsPerSample"] =
-              bit_per_sample_enum
-                  .find(audio_capabilities.get("bitsPerSample", "").asString())
-                  ->second;
-        }
-        if (check_existing_json_member(audio_capabilities, "audioType")) {
-          audio_capabilities_so["audioType"] =
-              audio_type_enum
-                  .find(audio_capabilities.get("audioType", "").asString())
-                  ->second;
+        smart_objects::SmartObject audio_capabilities_so(
+            smart_objects::SmartType_Array);
+        if (audio_capabilities.type() == Json::arrayValue) {
+          for (uint32_t i = 0; i < audio_capabilities.size(); i++) {
+            convert_audio_capability_to_obj(audio_capabilities[i],
+                                            audio_capabilities_so[i]);
+          }
+        } else if (audio_capabilities.type() == Json::objectValue) {
+          convert_audio_capability_to_obj(audio_capabilities,
+                                          audio_capabilities_so[0]);
         }
         set_audio_pass_thru_capabilities(audio_capabilities_so);
       }
@@ -1095,26 +1157,7 @@ bool HMICapabilitiesImpl::load_capabilities_from_file() {
         Json::Value pcm_capabilities = ui.get("pcmStreamCapabilities", "");
         smart_objects::SmartObject pcm_capabilities_so =
             smart_objects::SmartObject(smart_objects::SmartType_Map);
-
-        if (check_existing_json_member(pcm_capabilities, "samplingRate")) {
-          pcm_capabilities_so["samplingRate"] =
-              sampling_rate_enum
-                  .find(pcm_capabilities.get("samplingRate", "").asString())
-                  ->second;
-        }
-        if (check_existing_json_member(pcm_capabilities, "bitsPerSample")) {
-          pcm_capabilities_so["bitsPerSample"] =
-              bit_per_sample_enum
-                  .find(pcm_capabilities.get("bitsPerSample", "").asString())
-                  ->second;
-        }
-        if (check_existing_json_member(pcm_capabilities, "audioType")) {
-          pcm_capabilities_so["audioType"] =
-              audio_type_enum
-                  .find(pcm_capabilities.get("audioType", "").asString())
-                  ->second;
-        }
-
+        convert_audio_capability_to_obj(pcm_capabilities, pcm_capabilities_so);
         set_pcm_stream_capabilities(pcm_capabilities_so);
       }
 
@@ -1236,6 +1279,15 @@ bool HMICapabilitiesImpl::load_capabilities_from_file() {
           if (!rc_capability_so.empty()) {
             set_rc_supported(true);
           }
+        }
+        if (check_existing_json_member(system_capabilities,
+                                       "seatLocationCapability")) {
+          Json::Value seat_location_capability =
+              system_capabilities.get("seatLocationCapability", "");
+          smart_objects::SmartObject seat_location_capability_so;
+          formatters::CFormatterJsonBase::jsonValueToObj(
+              seat_location_capability, seat_location_capability_so);
+          set_seat_location_capability(seat_location_capability_so);
         }
       }
     }  // UI end
@@ -1368,6 +1420,27 @@ void HMICapabilitiesImpl::convert_json_languages_to_obj(
   for (uint32_t i = 0, j = 0; i < json_languages.size(); ++i) {
     languages[j++] =
         MessageHelper::CommonLanguageFromString(json_languages[i].asString());
+  }
+}
+
+void HMICapabilitiesImpl::convert_audio_capability_to_obj(
+    const Json::Value& capability,
+    smart_objects::SmartObject& output_so) const {
+  if (check_existing_json_member(capability, "samplingRate")) {
+    output_so[strings::sampling_rate] =
+        sampling_rate_enum.find(capability.get("samplingRate", "").asString())
+            ->second;
+  }
+  if (check_existing_json_member(capability, "bitsPerSample")) {
+    output_so[strings::bits_per_sample] =
+        bit_per_sample_enum
+            .find(capability.get("bitsPerSample", "").asString())
+            ->second;
+  }
+  if (check_existing_json_member(capability, "audioType")) {
+    output_so[strings::audio_type] =
+        audio_type_enum.find(capability.get("audioType", "").asString())
+            ->second;
   }
 }
 

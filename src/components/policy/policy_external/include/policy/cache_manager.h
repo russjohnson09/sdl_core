@@ -154,15 +154,23 @@ class CacheManager : public CacheManagerInterface {
    */
   virtual bool SecondsBetweenRetries(std::vector<int>& seconds);
 
-  /**
-   * @brief Gets information about vehicle
-   */
-  virtual const VehicleInfo GetVehicleInfo() const;
-
   const boost::optional<bool> LockScreenDismissalEnabledState() const OVERRIDE;
 
   const boost::optional<std::string> LockScreenDismissalWarningMessage(
       const std::string& language) const OVERRIDE;
+
+  /**
+   * @brief Gets vehicle data items
+   * @return Structure with vehicle data items
+   */
+  virtual const std::vector<policy_table::VehicleDataItem> GetVehicleDataItems()
+      const OVERRIDE;
+
+  /**
+   * @brief Gets copy of current policy table data
+   * @return policy_table as json object
+   */
+  virtual Json::Value GetPolicyTableData() const OVERRIDE;
 
   /**
    * @brief Get a list of enabled cloud applications
@@ -412,6 +420,12 @@ class CacheManager : public CacheManagerInterface {
    * @return true, if succeeded, otherwise - false
    */
   bool GetFunctionalGroupings(policy_table::FunctionalGroupings& groups);
+
+  /**
+   * @brief Get policy app names from PT
+   * @return container of strings representing policy application names
+   */
+  const policy_table::Strings GetPolicyAppIDs() const OVERRIDE;
 
   /**
    * Checks if the application is represented in policy table
@@ -853,6 +867,14 @@ class CacheManager : public CacheManagerInterface {
   void OnDeviceSwitching(const std::string& device_id_from,
                          const std::string& device_id_to) OVERRIDE;
 
+  /**
+   * @brief Method for separate standard vehicle data items from custom
+   * @param full vehicle data items during PTU
+   * @return array with only custom vehicle items
+   */
+  static policy_table::VehicleDataItems CollectCustomVDItems(
+      const policy_table::VehicleDataItems& vd_items);
+
  private:
   std::string currentDateTime();
   struct AppHMITypeToString {
@@ -897,6 +919,16 @@ class CacheManager : public CacheManagerInterface {
   bool IsPermissionsCalculated(const std::string& device_id,
                                const std::string& policy_app_id,
                                policy::Permissions& permission);
+
+  EncryptionRequired GetAppEncryptionRequiredFlag(
+      const std::string& application_policy_name) const OVERRIDE;
+
+  EncryptionRequired GetFunctionalGroupingEncryptionRequiredFlag(
+      const std::string& functional_group) const OVERRIDE;
+
+  void GetApplicationParams(
+      const std::string& application_name,
+      policy_table::ApplicationParams& application_policies) const OVERRIDE;
 
  private:
   std::shared_ptr<policy_table::Table> pt_;
@@ -1026,6 +1058,24 @@ class CacheManager : public CacheManagerInterface {
    */
   void MergeCFM(const policy_table::PolicyTable& new_pt,
                 policy_table::PolicyTable& pt);
+
+  /**
+   * @brief MergeVD allows to merge VehicleDataItems section by
+   *definite rules.
+   *
+   * The rules are:
+   * 1. If vehicle_data_items key is not presented in the updated PolicyTable,
+   * update for VehicleDataItems should be ignored.
+   * 2. If vehicle_data_items presented in updated PolicyTable, the
+   * VehicleDataItems in the database (LocalPT) should be overwritten with
+   * updated data.
+   *
+   * @param new_pt the policy table loaded from updated preload JSON file.
+   *
+   * @param pt the exists database
+   */
+  void MergeVD(const policy_table::PolicyTable& new_pt,
+               policy_table::PolicyTable& pt);
 
   void InitBackupThread();
 

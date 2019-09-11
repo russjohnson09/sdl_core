@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Ford Motor Company
+ * Copyright (c) 2019, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,34 +30,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "sdl_rpc_plugin/commands/hmi/get_urls_response.h"
-#include "application_manager/rpc_service.h"
+#ifndef SRC_COMPONENTS_APPLICATION_MANAGER_TEST_INCLUDE_APPLICATION_MANAGER_MOCK_RPC_PROTECTION_MANAGER_H_
+#define SRC_COMPONENTS_APPLICATION_MANAGER_TEST_INCLUDE_APPLICATION_MANAGER_MOCK_RPC_PROTECTION_MANAGER_H_
 
-namespace sdl_rpc_plugin {
-using namespace application_manager;
-namespace commands {
+#include "application_manager/rpc_protection_manager.h"
+#include "gmock/gmock.h"
 
-GetUrlsResponse::GetUrlsResponse(
-    const application_manager::commands::MessageSharedPtr& message,
-    ApplicationManager& application_manager,
-    rpc_service::RPCService& rpc_service,
-    HMICapabilities& hmi_capabilities,
-    policy::PolicyHandlerInterface& policy_handle)
-    : ResponseToHMI(message,
-                    application_manager,
-                    rpc_service,
-                    hmi_capabilities,
-                    policy_handle) {}
+namespace application_manager {
+class MockRPCProtectionManager : public RPCProtectionManager {
+ public:
+  MOCK_CONST_METHOD3(CheckPolicyEncryptionFlag,
+                     bool(const uint32_t function_id,
+                          const ApplicationSharedPtr app,
+                          const bool is_rpc_service_secure));
 
-GetUrlsResponse::~GetUrlsResponse() {}
+  MOCK_METHOD3(CreateEncryptionNeededResponse,
+               std::shared_ptr<smart_objects::SmartObject>(
+                   const uint32_t connection_key,
+                   const uint32_t function_id,
+                   const uint32_t conrrelation_id));
 
-void GetUrlsResponse::Run() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  (*message_)[strings::params][strings::protocol_type] = hmi_protocol_type_;
-  (*message_)[strings::params][strings::protocol_version] = protocol_version_;
+  MOCK_CONST_METHOD2(IsInEncryptionNeededCache,
+                     bool(const uint32_t app_id,
+                          const uint32_t conrrelation_id));
 
-  rpc_service_.SendMessageToHMI(message_);
-}
+  MOCK_METHOD2(AddToEncryptionNeededCache,
+               void(const uint32_t app_id, const uint32_t correlation_id));
 
-}  // namespace commands
-}  // namespace sdl_rpc_plugin
+  MOCK_METHOD2(RemoveFromEncryptionNeededCache,
+               void(const uint32_t app_id, const uint32_t correlation_id));
+};
+}  // namespace application_manager
+
+#endif  // SRC_COMPONENTS_APPLICATION_MANAGER_TEST_INCLUDE_APPLICATION_MANAGER_MOCK_RPC_PROTECTION_MANAGER_H_

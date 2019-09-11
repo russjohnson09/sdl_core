@@ -38,7 +38,6 @@
 #include <string>
 #include <vector>
 #include "application_manager/application.h"
-#include "application_manager/command_factory.h"
 #include "application_manager/commands/command.h"
 #include "connection_handler/connection_handler.h"
 #include "utils/data_accessor.h"
@@ -46,7 +45,6 @@
 #include "application_manager/application_manager_settings.h"
 #include "application_manager/hmi_interfaces.h"
 #include "application_manager/plugin_manager/rpc_plugin_manager.h"
-#include "application_manager/policies/policy_handler_interface.h"
 #include "application_manager/state_controller.h"
 #include "policy/policy_types.h"
 #include "telemetry_monitor/telemetry_observable.h"
@@ -76,6 +74,10 @@ namespace resumption {
 class ResumeCtrl;
 }
 
+namespace policy {
+class PolicyHandlerInterface;
+}
+
 namespace application_manager {
 
 namespace event_engine {
@@ -94,9 +96,12 @@ class StateControllerImpl;
 struct CommandParametersPermissions;
 using policy::RPCParams;
 typedef std::vector<ApplicationSharedPtr> AppSharedPtrs;
-struct ApplicationsAppIdSorter {
+struct ApplicationsSorter {
   bool operator()(const ApplicationSharedPtr lhs,
                   const ApplicationSharedPtr rhs) const {
+    if (lhs->app_id() == rhs->app_id()) {
+      return lhs->device() < rhs->device();
+    }
     return lhs->app_id() < rhs->app_id();
   }
 };
@@ -110,7 +115,7 @@ struct ApplicationsPolicyAppIdSorter {
   }
 };
 
-typedef std::set<ApplicationSharedPtr, ApplicationsAppIdSorter> ApplicationSet;
+typedef std::set<ApplicationSharedPtr, ApplicationsSorter> ApplicationSet;
 
 typedef std::set<ApplicationSharedPtr, ApplicationsPolicyAppIdSorter>
     AppsWaitRegistrationSet;
@@ -276,15 +281,6 @@ class ApplicationManager {
   virtual void OnHMILevelChanged(uint32_t app_id,
                                  mobile_apis::HMILevel::eType from,
                                  mobile_apis::HMILevel::eType to) = 0;
-
-  /**
-   * @brief Sends HMI status notification to mobile
-   *
-   * @param application_impl application with changed HMI status
-   *
-   **/
-  virtual void SendHMIStatusNotification(
-      const std::shared_ptr<Application> app) = 0;
 
   /**
    * @brief Checks if driver distraction state is valid, creates message
@@ -466,8 +462,7 @@ class ApplicationManager {
    * @param vehicle_info Enum value of type of vehicle data
    * @param new value (for integer values currently) of vehicle data
    */
-  virtual void IviInfoUpdated(mobile_apis::VehicleDataType::eType vehicle_info,
-                              int value) = 0;
+  virtual void IviInfoUpdated(const std::string& vehicle_info, int value) = 0;
 
   virtual ApplicationSharedPtr RegisterApplication(
       const std::shared_ptr<smart_objects::SmartObject>&
@@ -606,8 +601,8 @@ class ApplicationManager {
   /**
    * @brief Checks, if given RPC is allowed at current HMI level for specific
    * application in policy table
-   * @param policy_app_id Application id
-   * @param hmi_level Current HMI level of application
+   * @param app Application
+   * @param window_id id of application's window
    * @param function_id FunctionID of RPC
    * @param params_permissions Permissions for RPC parameters (e.g.
    * SubscribeVehicleData) defined in policy table
@@ -615,6 +610,7 @@ class ApplicationManager {
    */
   virtual mobile_apis::Result::eType CheckPolicyPermissions(
       const ApplicationSharedPtr app,
+      const WindowID window_id,
       const std::string& function_id,
       const RPCParams& rpc_params,
       CommandParametersPermissions* params_permissions = NULL) = 0;
@@ -635,11 +631,14 @@ class ApplicationManager {
   /**
    * @brief IsAppInReconnectMode check if application belongs to session
    * affected by transport switching at the moment
+   * @param device_id device indentifier
    * @param policy_app_id Application id
    * @return True if application is registered within session being switched,
    * otherwise - false
    */
-  virtual bool IsAppInReconnectMode(const std::string& policy_app_id) const = 0;
+  virtual bool IsAppInReconnectMode(
+      const connection_handler::DeviceHandle& device_id,
+      const std::string& policy_app_id) const = 0;
 
   virtual resumption::ResumeCtrl& resume_controller() = 0;
 
@@ -705,6 +704,7 @@ class ApplicationManager {
   /**
    * @brief CreateRegularState create regular HMI state for application
    * @param app Application
+   * @param window_type type of window
    * @param hmi_level of returned state
    * @param audio_state of returned state
    * @param system_context of returned state
@@ -712,10 +712,11 @@ class ApplicationManager {
    */
   virtual HmiStatePtr CreateRegularState(
       std::shared_ptr<Application> app,
-      mobile_apis::HMILevel::eType hmi_level,
-      mobile_apis::AudioStreamingState::eType audio_state,
-      mobile_apis::VideoStreamingState::eType video_state,
-      mobile_apis::SystemContext::eType system_context) const = 0;
+      const mobile_apis::WindowType::eType window_type,
+      const mobile_apis::HMILevel::eType hmi_level,
+      const mobile_apis::AudioStreamingState::eType audio_state,
+      const mobile_apis::VideoStreamingState::eType video_state,
+      const mobile_apis::SystemContext::eType system_context) const = 0;
 
   /**
    * @brief Checks if application can stream (streaming service is started and

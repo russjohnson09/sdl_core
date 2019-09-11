@@ -71,6 +71,8 @@
 #include "sdl_rpc_plugin/commands/hmi/sdl_activate_app_response.h"
 #include "sdl_rpc_plugin/commands/hmi/sdl_get_list_of_permissions_request.h"
 #include "sdl_rpc_plugin/commands/hmi/sdl_get_list_of_permissions_response.h"
+#include "sdl_rpc_plugin/commands/hmi/sdl_get_policy_configuration_data_request.h"
+#include "sdl_rpc_plugin/commands/hmi/sdl_get_policy_configuration_data_response.h"
 #include "sdl_rpc_plugin/commands/hmi/sdl_get_status_update_request.h"
 #include "sdl_rpc_plugin/commands/hmi/sdl_get_status_update_response.h"
 #include "sdl_rpc_plugin/commands/hmi/sdl_get_user_friendly_message_request.h"
@@ -99,10 +101,14 @@
 #include "sdl_rpc_plugin/commands/hmi/ui_alert_response.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_change_registration_request.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_change_registration_response.h"
+#include "sdl_rpc_plugin/commands/hmi/ui_create_window_request.h"
+#include "sdl_rpc_plugin/commands/hmi/ui_create_window_response.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_delete_command_request.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_delete_command_response.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_delete_submenu_request.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_delete_submenu_response.h"
+#include "sdl_rpc_plugin/commands/hmi/ui_delete_window_request.h"
+#include "sdl_rpc_plugin/commands/hmi/ui_delete_window_response.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_end_audio_pass_thru_request.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_end_audio_pass_thru_response.h"
 #include "sdl_rpc_plugin/commands/hmi/ui_get_capabilities_request.h"
@@ -167,8 +173,6 @@
 #include "sdl_rpc_plugin/commands/hmi/basic_communication_system_response.h"
 #include "sdl_rpc_plugin/commands/hmi/dial_number_request.h"
 #include "sdl_rpc_plugin/commands/hmi/dial_number_response.h"
-#include "sdl_rpc_plugin/commands/hmi/get_urls.h"
-#include "sdl_rpc_plugin/commands/hmi/get_urls_response.h"
 #include "sdl_rpc_plugin/commands/hmi/navi_alert_maneuver_request.h"
 #include "sdl_rpc_plugin/commands/hmi/navi_alert_maneuver_response.h"
 #include "sdl_rpc_plugin/commands/hmi/navi_audio_start_stream_request.h"
@@ -243,12 +247,14 @@
 
 #include "sdl_rpc_plugin/commands/hmi/bc_get_file_path_request.h"
 #include "sdl_rpc_plugin/commands/hmi/bc_get_file_path_response.h"
+#include "sdl_rpc_plugin/commands/hmi/on_service_update_notification.h"
 #include "sdl_rpc_plugin/commands/hmi/rc_get_capabilities_request.h"
 #include "sdl_rpc_plugin/commands/hmi/rc_get_capabilities_response.h"
 #include "sdl_rpc_plugin/commands/hmi/rc_is_ready_request.h"
 #include "sdl_rpc_plugin/commands/hmi/rc_is_ready_response.h"
 
 #include "sdl_rpc_plugin/commands/hmi/on_bc_system_capability_updated_notification.h"
+#include "sdl_rpc_plugin/commands/hmi/on_bc_system_capability_updated_notification_from_hmi.h"
 
 namespace sdl_rpc_plugin {
 using namespace application_manager;
@@ -352,11 +358,6 @@ CommandCreator& HMICommandFactory::get_creator_factory(
                  ? factory.GetCreator<commands::SDLPolicyUpdate>()
                  : factory.GetCreator<commands::SDLPolicyUpdateResponse>();
     }
-    case hmi_apis::FunctionID::SDL_GetURLS: {
-      return hmi_apis::messageType::request == message_type
-                 ? factory.GetCreator<commands::GetUrls>()
-                 : factory.GetCreator<commands::GetUrlsResponse>();
-    }
     case hmi_apis::FunctionID::SDL_OnAppPermissionChanged: {
       return factory.GetCreator<commands::OnAppPermissionChangedNotification>();
     }
@@ -378,6 +379,13 @@ CommandCreator& HMICommandFactory::get_creator_factory(
       return hmi_apis::messageType::request == message_type
                  ? factory.GetCreator<commands::SDLGetStatusUpdateRequest>()
                  : factory.GetCreator<commands::SDLGetStatusUpdateResponse>();
+    }
+    case hmi_apis::FunctionID::SDL_GetPolicyConfigurationData: {
+      return hmi_apis::messageType::request == message_type
+                 ? factory.GetCreator<
+                       commands::SDLGetPolicyConfigurationDataRequest>()
+                 : factory.GetCreator<
+                       commands::SDLGetPolicyConfigurationDataResponse>();
     }
     case hmi_apis::FunctionID::SDL_OnStatusUpdate: {
       return factory.GetCreator<commands::OnStatusUpdateNotification>();
@@ -422,6 +430,11 @@ CommandCreator& HMICommandFactory::get_creator_factory(
       return hmi_apis::messageType::request == message_type
                  ? factory.GetCreator<commands::UIShowAppMenuRequest>()
                  : factory.GetCreator<commands::UIShowAppMenuResponse>();
+    }
+    case hmi_apis::FunctionID::UI_DeleteWindow: {
+      return hmi_apis::messageType::request == message_type
+                 ? factory.GetCreator<commands::UIDeleteWindowRequest>()
+                 : factory.GetCreator<commands::UIDeleteWindowResponse>();
     }
     case hmi_apis::FunctionID::UI_SetMediaClockTimer: {
       return hmi_apis::messageType::request == message_type
@@ -470,6 +483,11 @@ CommandCreator& HMICommandFactory::get_creator_factory(
       return hmi_apis::messageType::request == message_type
                  ? factory.GetCreator<commands::UIChangeRegistrationRequest>()
                  : factory.GetCreator<commands::UIChangeRegistratioResponse>();
+    }
+    case hmi_apis::FunctionID::UI_CreateWindow: {
+      return hmi_apis::messageType::request == message_type
+                 ? factory.GetCreator<commands::UICreateWindowRequest>()
+                 : factory.GetCreator<commands::UICreateWindowResponse>();
     }
     case hmi_apis::FunctionID::UI_PerformAudioPassThru: {
       return hmi_apis::messageType::request == message_type
@@ -851,6 +869,9 @@ CommandCreator& HMICommandFactory::get_creator_factory(
                  ? factory.GetCreator<commands::hmi::DialNumberRequest>()
                  : factory.GetCreator<commands::hmi::DialNumberResponse>();
     }
+    case hmi_apis::FunctionID::BasicCommunication_OnServiceUpdate: {
+      return factory.GetCreator<commands::hmi::OnServiceUpdateNotification>();
+    }
     case hmi_apis::FunctionID::Navigation_OnWayPointChange: {
       return factory.GetCreator<commands::OnNaviWayPointChangeNotification>();
     }
@@ -875,8 +896,13 @@ CommandCreator& HMICommandFactory::get_creator_factory(
                  : factory.GetCreator<commands::BCGetFilePathResponse>();
     }
     case hmi_apis::FunctionID::BasicCommunication_OnSystemCapabilityUpdated: {
-      return factory
-          .GetCreator<commands::OnBCSystemCapabilityUpdatedNotification>();
+      return (application_manager::commands::Command::CommandSource::
+                  SOURCE_HMI == source)
+                 ? factory.GetCreator<
+                       commands::
+                           OnBCSystemCapabilityUpdatedNotificationFromHMI>()
+                 : factory.GetCreator<
+                       commands::OnBCSystemCapabilityUpdatedNotification>();
     }
     default: { return factory.GetCreator<InvalidCommand>(); }
   }

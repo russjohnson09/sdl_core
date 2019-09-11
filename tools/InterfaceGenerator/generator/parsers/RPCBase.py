@@ -270,7 +270,7 @@ class Parser(object):
                 result = self._parse_version(attrib[attribute])
                 until = result
             elif attribute == "deprecated":
-                deprecated = attributes[attribute]
+                deprecated = attrib[attribute]
             elif attribute == "removed":
                 removed = attrib[attribute]
             else:
@@ -865,8 +865,6 @@ class Parser(object):
         """
         if name in attrib:
             del attrib[name]
-            print ("Ignoring attribute '" +
-                   name + "'")
         return True
 
     def _parse_version(self, version):
