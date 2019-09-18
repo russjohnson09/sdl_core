@@ -2551,6 +2551,18 @@
             }
         },
         "app_policies": {
+            "8675829": {
+                "keep_context": true,
+                "steal_focus": true,
+                "priority": "NONE",
+                "default_hmi": "NONE",
+                "groups": ["Base-4", "Location-1", "Notifications", "Notifications-RC", "DrivingCharacteristics-3", "VehicleInfo-3", "PropriataryData-1", "PropriataryData-2", "ProprietaryData-3", "CloudAppStore", "CloudApp", "AppServiceProvider", "AppServiceConsumer", "RemoteControl", "Emergency-1", "Navigation-1", "Base-6", "OnKeyboardInputOnlyGroup", "OnTouchEventOnlyGroup", "DiagnosticMessageOnly", "DataConsent-2", "BaseBeforeDataConsent", "SendLocation", "WayPoints", "BackgroundAPT", "HapticGroup"],
+                "endpoint": "ws://54.175.107.230:8080",
+                "enabled" : true,
+                "cloud_transport_type": "WS",
+                "hybrid_app_preference": "CLOUD",
+                "nicknames": ["BOCKS"]
+            },
             "default": {
                 "allow_unkown_rpc_passthrough": true,
                 "keep_context": false,
