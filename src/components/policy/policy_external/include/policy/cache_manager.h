@@ -34,16 +34,17 @@
 #define SRC_COMPONENTS_POLICY_POLICY_EXTERNAL_INCLUDE_POLICY_CACHE_MANAGER_H_
 
 #include <map>
+#include "boost/optional.hpp"
 
-#include "policy/pt_representation.h"
-#include "policy/pt_ext_representation.h"
-#include "policy/usage_statistics/statistics_manager.h"
 #include "policy/cache_manager_interface.h"
+#include "policy/pt_ext_representation.h"
+#include "policy/pt_representation.h"
+#include "policy/usage_statistics/statistics_manager.h"
 #include "utils/threads/thread.h"
 #include "utils/threads/thread_delegate.h"
 
-#include "utils/lock.h"
 #include "utils/conditional_variable.h"
+#include "utils/lock.h"
 
 namespace policy {
 class PolicySettings;
@@ -153,10 +154,23 @@ class CacheManager : public CacheManagerInterface {
    */
   virtual bool SecondsBetweenRetries(std::vector<int>& seconds);
 
+  const boost::optional<bool> LockScreenDismissalEnabledState() const OVERRIDE;
+
+  const boost::optional<std::string> LockScreenDismissalWarningMessage(
+      const std::string& language) const OVERRIDE;
+
   /**
-   * @brief Gets information about vehicle
+   * @brief Gets vehicle data items
+   * @return Structure with vehicle data items
    */
-  virtual const VehicleInfo GetVehicleInfo() const;
+  virtual const std::vector<policy_table::VehicleDataItem> GetVehicleDataItems()
+      const OVERRIDE;
+
+  /**
+   * @brief Gets copy of current policy table data
+   * @return policy_table as json object
+   */
+  virtual Json::Value GetPolicyTableData() const OVERRIDE;
 
   /**
    * @brief Get a list of enabled cloud applications
@@ -256,7 +270,7 @@ class CacheManager : public CacheManagerInterface {
    * @brief Check if an app can send unknown rpc requests to an app service
    * provider
    * @param policy_app_id Unique application id
-  */
+   */
   virtual bool UnknownRPCPassthroughAllowed(
       const std::string& policy_app_id) const;
 
@@ -283,7 +297,7 @@ class CacheManager : public CacheManagerInterface {
   std::vector<UserFriendlyMessage> GetUserFriendlyMsg(
       const std::vector<std::string>& msg_codes,
       const std::string& language,
-      const std::string& active_hmi_language);
+      const std::string& active_hmi_language) const;
 
   /**
    * @brief GetLockScreenIcon allows to obtain lock screen icon url;
@@ -406,6 +420,12 @@ class CacheManager : public CacheManagerInterface {
    * @return true, if succeeded, otherwise - false
    */
   bool GetFunctionalGroupings(policy_table::FunctionalGroupings& groups);
+
+  /**
+   * @brief Get policy app names from PT
+   * @return container of strings representing policy application names
+   */
+  const policy_table::Strings GetPolicyAppIDs() const OVERRIDE;
 
   /**
    * Checks if the application is represented in policy table
@@ -798,35 +818,36 @@ class CacheManager : public CacheManagerInterface {
   ExternalConsentStatus GetExternalConsentEntities() OVERRIDE;
 
   /**
- * @brief Creates collection of ExternalConsent items known by current
- * functional
- * groupings and appropiate section
- * (disallowed_by_external_consent_entities_on/off) where
- * is item is being holded. If item is not found it's not included into
- * collection
- * @param status Current status containing collection of ExternalConsent items
- * @return Collection of ExternalConsent items mapped to list of groups with
- * section
- * marker where the item is found
- */
+   * @brief Creates collection of ExternalConsent items known by current
+   * functional
+   * groupings and appropiate section
+   * (disallowed_by_external_consent_entities_on/off) where
+   * is item is being holded. If item is not found it's not included into
+   * collection
+   * @param status Current status containing collection of ExternalConsent items
+   * @return Collection of ExternalConsent items mapped to list of groups with
+   * section
+   * marker where the item is found
+   */
   GroupsByExternalConsentStatus GetGroupsWithSameEntities(
       const ExternalConsentStatus& status) OVERRIDE;
 
   /**
-  * @brief Gets collection of links device-to-application from device_data
-  * section of policy table if there any application records present, i.e. if
-  * any specific user consent is present
-  * @return Collection of device-to-application links
-  */
+   * @brief Gets collection of links device-to-application from device_data
+   * section of policy table if there any application records present, i.e. if
+   * any specific user consent is present
+   * @return Collection of device-to-application links
+   */
   std::map<std::string, std::string> GetKnownLinksFromPT() OVERRIDE;
 
   /**
- * @brief Sets groups permissions affected by customer connectivity settings
- * entities status, i.e. groups assigned to particular application on
- * particular device which have same entities as current ExternalConsent status
- * @param permissions Groups permissions which result current ExternalConsent
- * status
- */
+   * @brief Sets groups permissions affected by customer connectivity settings
+   * entities status, i.e. groups assigned to particular application on
+   * particular device which have same entities as current ExternalConsent
+   * status
+   * @param permissions Groups permissions which result current ExternalConsent
+   * status
+   */
   void SetExternalConsentForApp(const PermissionConsent& permissions) OVERRIDE;
 
 #ifdef BUILD_TESTS
@@ -845,6 +866,14 @@ class CacheManager : public CacheManagerInterface {
    */
   void OnDeviceSwitching(const std::string& device_id_from,
                          const std::string& device_id_to) OVERRIDE;
+
+  /**
+   * @brief Method for separate standard vehicle data items from custom
+   * @param full vehicle data items during PTU
+   * @return array with only custom vehicle items
+   */
+  static policy_table::VehicleDataItems CollectCustomVDItems(
+      const policy_table::VehicleDataItems& vd_items);
 
  private:
   std::string currentDateTime();
@@ -890,6 +919,16 @@ class CacheManager : public CacheManagerInterface {
   bool IsPermissionsCalculated(const std::string& device_id,
                                const std::string& policy_app_id,
                                policy::Permissions& permission);
+
+  EncryptionRequired GetAppEncryptionRequiredFlag(
+      const std::string& application_policy_name) const OVERRIDE;
+
+  EncryptionRequired GetFunctionalGroupingEncryptionRequiredFlag(
+      const std::string& functional_group) const OVERRIDE;
+
+  void GetApplicationParams(
+      const std::string& application_name,
+      policy_table::ApplicationParams& application_policies) const OVERRIDE;
 
  private:
   std::shared_ptr<policy_table::Table> pt_;
@@ -1019,6 +1058,24 @@ class CacheManager : public CacheManagerInterface {
    */
   void MergeCFM(const policy_table::PolicyTable& new_pt,
                 policy_table::PolicyTable& pt);
+
+  /**
+   * @brief MergeVD allows to merge VehicleDataItems section by
+   *definite rules.
+   *
+   * The rules are:
+   * 1. If vehicle_data_items key is not presented in the updated PolicyTable,
+   * update for VehicleDataItems should be ignored.
+   * 2. If vehicle_data_items presented in updated PolicyTable, the
+   * VehicleDataItems in the database (LocalPT) should be overwritten with
+   * updated data.
+   *
+   * @param new_pt the policy table loaded from updated preload JSON file.
+   *
+   * @param pt the exists database
+   */
+  void MergeVD(const policy_table::PolicyTable& new_pt,
+               policy_table::PolicyTable& pt);
 
   void InitBackupThread();
 
